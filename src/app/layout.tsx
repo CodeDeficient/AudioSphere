@@ -27,7 +27,7 @@ export default function RootLayout({
         {/* Standard favicon.ico (temporarily commented out for testing PNG priority) */}
         {/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
         {/* PNG favicon as a fallback or alternative - with cache busting query */}
-        <link rel="icon" href="/images/favicon2.png?v=2" type="image/png" />
+        <link rel="icon" href="/images/favicon2.ico" sizes="any" type="image/x-icon" />
         {/* SVG favicon (if you create one later) */}
         {/* <link rel="icon" href="/favicon.svg" type="image/svg+xml" /> */}
         {/* Apple touch icon (often a slightly larger, square PNG) */}
