@@ -40,7 +40,7 @@ graph TB
     %% Hosting/Storage Layer
     subgraph "Hosting/Storage Layer"
         direction TB
-        FirebaseHost["Firebase Hosting"]:::storage
+        VercelDeploy["Vercel Deployment"]:::devops
         subgraph "Static Assets"
             direction TB
             AudioAssets["Audio Files (public/audio/)"]:::storage
@@ -72,9 +72,9 @@ graph TB
     Browser -->|"decodes & visualizes"| SphereVisualizer
 
     NextServer --> AudioAPI
-    NextServer --> FirebaseHost
+    NextServer --> VercelDeploy
 
-    GitHubActions -->|"Deploy build"| FirebaseHost
+    GitHubActions -->|"Deploy build"| VercelDeploy
     UpdateScript --> GitHubActions
     NixShell -->|"Provides env"| GitHubActions
 
@@ -88,8 +88,6 @@ graph TB
     click AudioAPI "https://github.com/codedeficient/audiosphere/blob/main/src/app/api/audio-list/route.ts"
     click AudioAssets "https://github.com/codedeficient/audiosphere/tree/main/public/audio/"
     click AuthHandlers "https://github.com/codedeficient/audiosphere/tree/main/public/_auth/"
-    click FirebaseHost "https://github.com/codedeficient/audiosphere/blob/main/firebase.json"
-    click FirebaseHost "https://github.com/codedeficient/audiosphere/blob/main/.firebaserc"
     click GitHubActions "https://github.com/codedeficient/audiosphere/blob/main/.github/workflows/roadmap-progress.yml"
     click UpdateScript "https://github.com/codedeficient/audiosphere/blob/main/.github/scripts/update-roadmap-checkbox.js"
     click NixShell "https://github.com/codedeficient/audiosphere/blob/main/.idx/dev.nix"
