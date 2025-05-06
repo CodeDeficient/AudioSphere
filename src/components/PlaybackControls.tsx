@@ -48,15 +48,16 @@ export default function PlaybackControls({
   const currentPosition = duration * progress;
 
   return (
-    <div className="flex flex-col items-center space-y-3 px-4 py-2 rounded-lg shadow-md bg-muted/50">
-       {/* Current Track Name */}
-       <div className="text-sm text-foreground truncate w-full text-center min-h-[1.25rem]">
-         {currentTrackName || 'No track selected'}
-       </div>
-
+    <div className="flex flex-col items-center space-y-2 sm:space-y-3 px-2 py-1 sm:px-4 sm:py-2 rounded-xl   relative overflow-hidden group">
+      {/* SVG Noise Overlay */}
+      <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none  " xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noiseFilter)"/></svg>
+      {/* Current Track Name */}
+      <div className="text-sm text-foreground truncate w-full text-center min-h-[1.25rem]">
+        {currentTrackName || 'No track selected'}
+      </div>
       {/* Progress Bar */}
       <div className="w-full flex items-center space-x-2">
-        <span className="text-xs text-muted-foreground w-10 text-right">
+        <span className="text-xs text-foreground w-10 text-right">
           {formatTime(currentPosition)}
         </span>
         <Slider
@@ -67,13 +68,12 @@ export default function PlaybackControls({
           className="w-full cursor-pointer"
           aria-label="Seek slider"
         />
-        <span className="text-xs text-muted-foreground w-10 text-left">
+        <span className="text-xs text-foreground w-10 text-left">
           {formatTime(duration)}
         </span>
       </div>
-
       {/* Main Controls */}
-      <div className="flex items-center justify-center space-x-4">
+      <div className="flex items-center justify-center space-x-2 sm:space-x-4">
         <Button variant="ghost" size="icon" onClick={onPrevious} aria-label="Previous track">
           <SkipBack className="h-5 w-5" />
         </Button>
@@ -83,18 +83,17 @@ export default function PlaybackControls({
         <Button variant="ghost" size="icon" onClick={onNext} aria-label="Next track">
           <SkipForward className="h-5 w-5" />
         </Button>
-
         {/* Volume Control */}
-        <div className="flex items-center space-x-2 w-32">
-           {volume > 0 ? <Volume2 className="h-5 w-5 text-muted-foreground" /> : <VolumeX className="h-5 w-5 text-muted-foreground" />}
-            <Slider
-             value={[volume]}
-             max={1}
-             step={0.01}
-             onValueChange={handleVolumeSliderChange}
-             className="w-full cursor-pointer"
-             aria-label="Volume slider"
-           />
+        <div className="flex items-center space-x-1 sm:space-x-2 w-full max-w-[120px] sm:max-w-[128px]">
+          {volume > 0 ? <Volume2 className="h-5 w-5 text-foreground" /> : <VolumeX className="h-5 w-5 text-foreground" />}
+          <Slider
+            value={[volume]}
+            max={1}
+            step={0.01}
+            onValueChange={handleVolumeSliderChange}
+            className="w-full cursor-pointer"
+            aria-label="Volume slider"
+          />
         </div>
       </div>
     </div>

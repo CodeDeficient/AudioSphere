@@ -4,7 +4,7 @@ declare module 'butterchurn' {
 
     // Declare a placeholder for the Visualizer type if it's used as a type annotation
     export interface Visualizer {
-        connectAudio(node: any): void; // Changed parameter type to any
+        connectAudio(node: unknown): void; // Changed parameter type to unknown
         loadPreset(preset: object, blendTime: number): void;
         render(): void;
         // Add other methods/properties you use from the Visualizer instance
@@ -20,3 +20,6 @@ declare module 'butterchurn-presets' {
     export function getPresets(): Record<string, object>;
     // Add other methods/properties you use
 }
+
+declare module 'jsmediatags';
+declare module 'react-beautiful-dnd';

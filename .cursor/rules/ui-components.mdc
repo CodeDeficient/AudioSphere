@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# UI Components
+
+Reusable React components are stored in the `src/components/` directory.
+
+General UI components can be found in [src/components/ui/](mdc:src/components/ui).
+

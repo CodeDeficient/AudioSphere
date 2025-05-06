@@ -1,0 +1,13 @@
+---
+description: 
+globs: global.css,css,*.css,style,UI
+alwaysApply: false
+---
+# Styling Guide
+
+This project uses Tailwind CSS along with custom CSS variables defined in [src/app/globals.css](mdc:src/app/globals.css).
+
+The `globals.css` file defines custom properties for colors and gradients, such as `--button-gradient-1`, `--text-color`, and `--foreground`.
+
+It also includes a global background animation and a `glassmorphism` class for applying a frosted glass effect to elements.
+

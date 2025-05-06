@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Structure
+
+This project is structured as a Next.js application. Key directories and files include:
+
+*   **Project Documentation**: See [PROJECT_OVERVIEW.md](mdc:PROJECT_OVERVIEW.md), [PLAN.md](mdc:PLAN.md), and [README.md](mdc:README.md) for high-level information.
+*   **Source Code**: The main application logic resides in the `src/` directory.
+*   **App Router**: Pages and API routes are located within `src/app/`.
+*   **API Endpoints**: Specific API routes, such as the audio list endpoint, are found in `src/app/api/`.
+*   **UI Components**: Reusable React components are organized in `src/components/`.
+*   **Hooks and Utilities**: Custom hooks and utility functions are in `src/hooks/` and `src/lib/` respectively.
+*   **Public Assets**: Static assets like audio files and images are stored in the `public/` directory.
+*   **Configuration**: Next.js configuration is handled in [next.config.ts](mdc:next.config.ts).
+
+

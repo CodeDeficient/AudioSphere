@@ -1,0 +1,27 @@
+name: Roadmap Progress Automation
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  update-roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update PROJECT_OVERVIEW.md checkboxes
+        run: |
+          node .github/scripts/update-roadmap-checkbox.js
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: auto-check roadmap item for closed issue #${{ github.event.issue.number }}'
+          file_pattern: 'PROJECT_OVERVIEW.md' 

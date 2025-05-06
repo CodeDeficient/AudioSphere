@@ -1,0 +1,13 @@
+---
+description: github
+globs: 
+alwaysApply: false
+---
+# GitHub Workflows
+
+This project uses GitHub Actions for CI/CD workflows.
+
+Workflows are defined in the `.github/workflows/` directory.
+
+[// ... existing code ...](mdc:.github/workflows)
+

@@ -10,10 +10,18 @@
   --button-gradient-3: linear-gradient(to right, #00ced1, #40e0d0); /* Blue to Teal shades */
   --text-color: #ffffff; /* White */
   --logo-text-color: #f0f0f0; /* Slightly off-white */
+  --foreground: #fff;
+}
+
+html,
+body {
+  width: 100%; /* Ensure full width */
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   overflow: hidden; /* Hide overflow from large background */
 }
 
@@ -48,3 +56,21 @@ body::before {
 }
 
 /* Add basic styles for components later, using variables */
+
+.glassmorphism {
+  background: rgba(15, 15, 20, 0.7);   /* Even more opaque background */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Further adjusted border for darker glass */
+  box-shadow: 0 6px 35px rgba(0, 0, 0, 0.2); 
+}
+
+.glassmorphism {
+  background: rgba(15, 15, 20, 0.7); /* Maintain normal background on hover */
+}
+
+*:not(button):not([role="slider"]):not(.slider):not(.btn) {
+  transition: none !important;
+  animation: none !important;
+}

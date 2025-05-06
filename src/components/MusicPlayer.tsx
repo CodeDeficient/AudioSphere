@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
+import { useDropzone } from 'react-dropzone';
 
 // Dynamically import SphereVisualizer with SSR disabled
 const SphereVisualizer = dynamic(
@@ -24,8 +26,11 @@ const SphereVisualizer = dynamic(
 export interface Track {
   id: string;
   name: string;
-  file: File;
+  file: File | undefined;
   url: string;
+  title?: string;
+  artist?: string;
+  album?: string;
 }
 
 export default function MusicPlayer() {
@@ -36,13 +41,33 @@ export default function MusicPlayer() {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
-
-
+  const [search, setSearch] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const [analyser, setAnalyser] = useState<Tone.Analyser | null>(null);
   const analyserRef = useRef<Tone.Analyser | null>(null);
+  const [audioContextState, setAudioContextState] = useState<string>(Tone.context.state);
+  const [showStartOverlay, setShowStartOverlay] = useState(false);
+
+
   const playerRef = useRef<Tone.Player | null>(null);
   const animationFrameRef = useRef<number>();
   // const trackEndTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Might not need with transport
 
+  // Refs for latest state values in async/RAF contexts
+  const isPlayingRef = useRef(isPlaying);
+  const durationRef = useRef(duration);
+
+  // Update refs when their corresponding state changes
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    durationRef.current = duration;
+  }, [duration]);
+
+
+  const volumeRef = useRef(volume);
 
   const ensureAudioContext = useCallback(async () => {
     if (!isAudioContextStarted && Tone.context.state !== 'running') {
@@ -52,17 +77,18 @@ export default function MusicPlayer() {
       setIsAudioContextStarted(true);
       if (!analyserRef.current) {
         analyserRef.current = new Tone.Analyser('fft', 1024);
-        Tone.Destination.volume.value = Tone.gainToDb(volume);
+        setAnalyser(analyserRef.current);
+        Tone.Destination.volume.value = Tone.gainToDb(volumeRef.current);
         console.log('Tone.js Analyser created and volume set.');
         console.log("analyser created", analyserRef.current)
       }
     } else if (!analyserRef.current && Tone.context.state === 'running') { 
-
        analyserRef.current = new Tone.Analyser('fft', 1024);
-       Tone.Destination.volume.value = Tone.gainToDb(volume);
+       setAnalyser(analyserRef.current);
+       Tone.Destination.volume.value = Tone.gainToDb(volumeRef.current);
        console.log('Tone.js Analyser created post-context start.');
     }
-  }, [isAudioContextStarted, volume]);
+  }, [isAudioContextStarted, setIsAudioContextStarted, setAnalyser]);
 
 
   const stopAndClearTransport = useCallback(() => {
@@ -73,7 +99,8 @@ export default function MusicPlayer() {
     Tone.Transport.cancel(0); // Clear scheduled events
     Tone.Transport.seconds = 0; // Reset transport time
     setProgress(0); // Reset visual progress
-  }, []);
+    setDuration(0); // Ensure duration is reset
+  }, [setProgress, setDuration]);
 
   // Stops player, disposes it, and clears transport
   const stopAndDisposePlayer = useCallback(() => {
@@ -99,20 +126,20 @@ export default function MusicPlayer() {
 
   const handleNextTrack = useCallback(() => {
     console.log("Handling next track...");
-    const wasPlaying = isPlaying; // Remember if it was playing
-    setIsPlaying(false); // Intend to stop while loading
-    stopAndDisposePlayer(); // Stop player and transport before changing index
+    // const wasPlaying = isPlaying; // Avoid stale closure
+    // setIsPlaying(false); // Let the main loading effect handle isPlaying state based on isPlayingRef
+    stopAndDisposePlayer(); 
 
     setCurrentTrackIndex(prevIndex => {
       if (prevIndex === null) return playlist.length > 0 ? 0 : null;
       const next = prevIndex + 1;
       const nextIndex = next >= playlist.length ? 0 : next;
-       console.log(`Next track index: ${nextIndex}`);
-      // The useEffect will handle starting playback if wasPlaying is true
-      setIsPlaying(wasPlaying); // Set intent to play the next track if the previous one was playing
-       return nextIndex;
+      console.log(`Next track index: ${nextIndex}. Current intent to play: ${isPlayingRef.current}`);
+      // The main useEffect for currentTrackIndex will now load this track.
+      // It will then check isPlayingRef.current to decide if Tone.Transport.start() should be called.
+      return nextIndex;
     });
-  }, [playlist.length, stopAndDisposePlayer, isPlaying]); // Added isPlaying back
+  }, [playlist.length, stopAndDisposePlayer, setCurrentTrackIndex]);
 
 
    const loadPlayer = useCallback(async (track: Track): Promise<Tone.Player> => {
@@ -163,83 +190,83 @@ export default function MusicPlayer() {
      });
    }, [ensureAudioContext]);
 
-   // Effect to load and potentially play when currentTrackIndex changes
+   // Effect to load and potentially play when currentTrackIndex or playlist changes
    useEffect(() => {
      if (currentTrackIndex === null || currentTrackIndex >= playlist.length) {
-         console.log("useEffect[currentTrackIndex]: Index invalid or out of bounds, stopping player.");
-         stopAndDisposePlayer(); // Stop everything if index becomes invalid
-         setIsPlaying(false);
-         setDuration(0);
-         setProgress(0);
+         console.log("useEffect[currentTrackIndex]: Index invalid or out of bounds. Resetting player state.");
+         stopAndDisposePlayer(); // This now also calls setDuration(0) and setProgress(0)
+         setIsPlaying(false);    // Ensure isPlaying is false if no track is valid
+         // setDuration(0); // Done by stopAndDisposePlayer via stopAndClearTransport
+         // setProgress(0); // Done by stopAndDisposePlayer via stopAndClearTransport
          return;
      }
 
      const trackToLoad = playlist[currentTrackIndex];
      console.log(`useEffect[currentTrackIndex]: Preparing to load track ${trackToLoad.name} at index ${currentTrackIndex}`);
-     let newPlayer: Tone.Player | null = null;
      let isCancelled = false;
-     const wasPlayingIntended = isPlaying; // Capture the intended state *before* loading
 
-     const loadAndSetPlayer = async () => {
-         console.log("loadAndSetPlayer: Stopping and disposing previous player/transport.");
-         stopAndDisposePlayer(); // Ensure clean state before loading
-         if (isCancelled) return;
+     const loadAndAttemptToPlay = async () => {
+         console.log("loadAndAttemptToPlay: Stopping and disposing previous player/transport first.");
+         stopAndDisposePlayer(); // Stop existing player, clear transport, reset progress & duration
+
+         if (isCancelled) {
+            console.log("loadAndAttemptToPlay: Cancelled before loading.");
+            return;
+         }
 
          try {
-             newPlayer = await loadPlayer(trackToLoad);
+             console.log(`loadAndAttemptToPlay: Loading track: ${trackToLoad.name}`);
+             const newPlayer = await loadPlayer(trackToLoad); // loadPlayer calls setDuration internally
+            
              if (isCancelled) {
-                 console.log("loadAndSetPlayer: Load completed but effect was cancelled. Disposing new player.");
-                  // Check if newPlayer is not null before disposing
-                  if (newPlayer) newPlayer.dispose();
+                 if (newPlayer) newPlayer.dispose();
+                 console.log("loadAndAttemptToPlay: Cancelled after loadPlayer resolved.");
                  return;
              }
 
-             playerRef.current = newPlayer; // Assign the newly loaded player
-             console.log(`loadAndSetPlayer: Player for ${trackToLoad.name} loaded and set as current.`);
-             setProgress(0); // Reset visual progress
+             playerRef.current = newPlayer;
+             // setProgress(0); // Already done by stopAndDisposePlayer
 
-             // Start transport if it was intended to be playing
-             if (isPlaying) {
-                 console.log(`loadAndSetPlayer: Starting transport for ${trackToLoad.name} because current isPlaying is true.`);
-                  if (playerRef.current?.loaded && playerRef.current?.buffer && duration > 0) {
-                     Tone.Transport.start(Tone.now()); // Start transport immediately
-                     console.log(`loadAndSetPlayer: Transport started for ${trackToLoad.name}`);
-                  } else {
-                      console.warn("loadAndSetPlayer: Tried to start transport, but player wasn't ready or duration invalid. Setting isPlaying to false.");
-                      setIsPlaying(false); // Revert state if can't start
-                  }
+             // After player is loaded and duration state is set by loadPlayer,
+             // check the *current* intent to play (isPlayingRef.current).
+             if (isPlayingRef.current && playerRef.current && playerRef.current.loaded && playerRef.current.buffer.duration > 0) {
+                 console.log(`loadAndAttemptToPlay: Track ${trackToLoad.name} loaded. isPlayingRef is true. Starting transport.`);
+                 Tone.Transport.start(Tone.now());
+             } else if (playerRef.current && playerRef.current.loaded) {
+                 console.log(`loadAndAttemptToPlay: Track ${trackToLoad.name} loaded. isPlayingRef is false or duration is 0. Transport not started.`);
+                 // If transport was somehow started but we are not in isPlaying state, ensure it's paused.
+                 if (Tone.Transport.state === 'started' && !isPlayingRef.current) {
+                     console.log("loadAndAttemptToPlay: Transport was started but isPlayingRef is false. Pausing transport.");
+                     Tone.Transport.pause();
+                 }
              } else {
-                  console.log("loadAndSetPlayer: Current isPlaying is false, transport not started.");
-                  // Ensure transport is not in a 'started' state if isPlaying is false
-                  if (Tone.Transport.state === 'started') {
-                      Tone.Transport.pause(); 
-                  }
+                console.warn("loadAndAttemptToPlay: Player not loaded or no buffer duration after loadPlayer.");
+                setIsPlaying(false); // Cannot play if player is not properly loaded
              }
 
          } catch (error) {
-              if (isCancelled) {
-                 console.log("loadAndSetPlayer: Error occurred after cancellation:", error);
-                 return;
-              }
-             console.error("loadAndSetPlayer: Error loading track:", error);
-             setCurrentTrackIndex(null); // Reset index on error
-             setIsPlaying(false);
-             setDuration(0);
-             setProgress(0);
+             console.error(`Error in loadAndAttemptToPlay for ${trackToLoad.name}:`, error);
+             setIsPlaying(false); // Ensure isPlaying is false on error
+             // stopAndDisposePlayer will have already reset duration/progress
+             if (playerRef.current) { // Clean up potentially partially loaded player
+                 playerRef.current.dispose();
+                 playerRef.current = null;
+             }
          }
      };
 
-     loadAndSetPlayer();
+     loadAndAttemptToPlay();
 
      return () => {
-         console.log(`useEffect[currentTrackIndex]: Cleanup triggered for index ${currentTrackIndex}`);
+         console.log(`useEffect[currentTrackIndex]: Cleanup for index ${currentTrackIndex}, track ${trackToLoad?.name}. Setting isCancelled to true.`);
          isCancelled = true;
-         // Don't stop/dispose player here, as a new effect might be about to load the *next* track.
-         // The stopAndDisposePlayer call at the beginning of loadAndSetPlayer handles cleanup.
-         // However, if the component itself unmounts, we *should* stop everything.
-         // This cleanup only runs when currentTrackIndex changes, not on unmount.
+         // stopAndDisposePlayer() is called at the beginning of the next run of this effect or on unmount of component.
      };
-   }, [currentTrackIndex, playlist, loadPlayer, stopAndDisposePlayer]); // REMOVED isPlaying and duration
+   // This effect should ONLY re-run if the track itself changes (index or playlist content affecting the current index).
+   // It should NOT re-run for isPlaying or duration changes, as those are handled by playPauseToggle and the updateLoop effect respectively.
+   // loadPlayer & stopAndDisposePlayer are stable useCallback hooks.
+   // setIsPlaying, setDuration, setProgress are stable state setters from useState.
+   }, [currentTrackIndex, playlist, loadPlayer, stopAndDisposePlayer, setIsPlaying, setProgress, setDuration]);
 
    // Separate effect for unmounting the component
     useEffect(() => {
@@ -252,30 +279,19 @@ export default function MusicPlayer() {
 
    const playPauseToggle = useCallback(async () => {
       await ensureAudioContext();
-
       if (currentTrackIndex === null && playlist.length > 0) {
-          // No track selected, select first and start transport
-          console.log("Play toggled: No track selected, selecting first and playing.");
-          setCurrentTrackIndex(0); // Trigger useEffect to load and schedule
-          setIsPlaying(true); // Set intent, useEffect will start transport if load succeeds
+          setCurrentTrackIndex(0);
+          setIsPlaying(true);
       } else if (playerRef.current && playerRef.current.loaded && duration > 0) {
-          // Player is loaded and ready
           if (Tone.Transport.state === 'started') {
-              // Currently playing, so pause transport
               Tone.Transport.pause();
               setIsPlaying(false);
-              console.log('Transport paused');
           } else {
-              // Currently paused or stopped, so start transport
-              Tone.Transport.start(Tone.now()); // Start from current transport time
+              Tone.Transport.start(); // Resume from current position
               setIsPlaying(true);
-              console.log(`Transport ${Tone.Transport.state === 'stopped' ? 'restarted' : 'resumed'} from ${Tone.Transport.seconds.toFixed(2)}s`);
           }
       } else if (currentTrackIndex !== null) {
-         // Track selected but player not ready? Set intent to play and let useEffect handle it.
-         console.log('Play toggled: Player not loaded/ready, setting intent to play.');
-         setIsPlaying(true);
-         // Trigger a reload if necessary? (Maybe handled by useEffect already)
+          setIsPlaying(true);
       } else {
           console.warn('Play/Pause toggle: Playlist is empty or no track selected.');
       }
@@ -300,18 +316,33 @@ export default function MusicPlayer() {
    const handleFileUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
         await ensureAudioContext();
-
         const files = event.target.files;
         if (files) {
-            const newTracks: Track[] = Array.from(files).map((file) => {
+            const newTracks: Track[] = await Promise.all(Array.from(files).map(async (file) => {
                 const url = URL.createObjectURL(file);
                 const id = `${file.name}-${Date.now()}-${Math.random()}`;
-                return { id, name: file.name, file, url };
-            });
-
+                let title = '';
+                let artist = '';
+                let album = '';
+                try {
+                    // @ts-expect-error
+                    const jsmediatags = await import('jsmediatags/dist/jsmediatags.min.js');
+                    await new Promise<void>((resolve) => {
+                        jsmediatags.read(file, {
+                            onSuccess: ({ tags }: { tags: any }) => {
+                                title = tags.title || '';
+                                artist = tags.artist || '';
+                                album = tags.album || '';
+                                resolve();
+                            },
+                            onError: () => resolve(),
+                        });
+                    });
+                } catch (e) { /* ignore */ }
+                return { id, name: file.name, file, url, title, artist, album };
+            }));
             const startIndex = playlist.length;
             setPlaylist((prev) => [...prev, ...newTracks]);
-
             if (currentTrackIndex === null && newTracks.length > 0) {
                 console.log("Playlist was empty, selecting first uploaded track:", newTracks[0].name);
                 // Don't set isPlaying=true here, let user initiate playback
@@ -329,19 +360,20 @@ export default function MusicPlayer() {
 
    const handlePreviousTrack = useCallback(() => {
         console.log("Handling previous track...");
-        const wasPlaying = isPlaying;
-        setIsPlaying(false); // Intent to stop while loading
+        // const wasPlaying = isPlaying; // Avoid stale closure
+        // setIsPlaying(false); // Let the main loading effect handle isPlaying state
         stopAndDisposePlayer();
 
         setCurrentTrackIndex(prevIndex => {
             if (prevIndex === null) return playlist.length > 0 ? playlist.length - 1 : null;
             const prev = prevIndex - 1;
             const prevIndexWrapped = prev < 0 ? playlist.length - 1 : prev;
-            console.log(`Previous track index: ${prevIndexWrapped}`);
-            setIsPlaying(wasPlaying); // Set intent based on previous state
+            console.log(`Previous track index: ${prevIndexWrapped}. Current intent to play: ${isPlayingRef.current}`);
+            // The main useEffect for currentTrackIndex will load this track
+            // and check isPlayingRef.current to decide on starting transport.
             return prevIndexWrapped;
         });
-   }, [playlist.length, stopAndDisposePlayer, isPlaying]); // Added isPlaying back
+   }, [playlist.length, stopAndDisposePlayer, setCurrentTrackIndex]);
 
   const handleVolumeChange = useCallback((newVolume: number) => {
     setVolume(newVolume);
@@ -374,51 +406,111 @@ export default function MusicPlayer() {
   // Effect for updating progress bar based on Transport time
   useEffect(() => {
     let isActive = true;
-
     const updateLoop = () => {
-        if (!isActive || Tone.Transport.state !== 'started' || duration <= 0 || isNaN(duration)) {
-            // Stop loop if transport isn't started or duration is invalid
-            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = undefined;
-            // Check if stopped *because* it reached the end
-            if (Tone.Transport.state !== 'started' && Tone.Transport.seconds >= duration - 0.1 && duration > 0) {
-                 console.log("Progress loop: Detected track end based on Transport time.");
-                 handleNextTrack(); // Trigger next track
-            }
-            return;
+      if (!isActive) { // Check if effect is still active
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+        return;
+      }
+
+      const currentTrackDuration = durationRef.current; // Use ref for freshest duration
+
+      if (currentTrackDuration <= 0 || isNaN(currentTrackDuration)) {
+        // If duration is invalid, ensure progress is 0 unless transport is also at 0 (e.g. initial load)
+        if (Tone.Transport.seconds > 0) {
+            setProgress(0);
         }
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+        return;
+      }
 
-        const currentSeconds = Tone.Transport.seconds;
-        const currentProgress = Math.min(Math.max(currentSeconds / duration, 0), 1);
+      const currentSeconds = Tone.Transport.seconds;
+      let currentProgress = Math.min(Math.max(currentSeconds / currentTrackDuration, 0), 1);
 
-        if (!isNaN(currentProgress)) {
-            setProgress(currentProgress);
-        } else {
-            console.warn("Calculated progress is NaN");
+      if (isNaN(currentProgress)) {
+        currentProgress = 0; // Sanitize NaN progress, should be rare with duration check above
+      }
+      
+      setProgress(currentProgress);
+
+      // Check for track end (with a small buffer for precision)
+      if (Tone.Transport.state === 'started' && currentSeconds >= currentTrackDuration - 0.05) {
+        console.log(`UpdateLoop: Track ended. Transport seconds: ${currentSeconds.toFixed(2)}, Duration: ${currentTrackDuration.toFixed(2)}. Auto-playing next.`);
+        
+        // Call handleNextTrack. This will:
+        // 1. Call stopAndDisposePlayer() -> stops transport, disposes player, resets progress/duration via stopAndClearTransport().
+        // 2. Call setCurrentTrackIndex() with the next index.
+        // This state change will trigger the main track loading useEffect.
+        // The main useEffect will see isPlayingRef.current (which should still be true from the finished track)
+        // and load and start the new track.
+        handleNextTrack(); 
+
+        // Stop this current animation frame loop.
+        // A new loop will be started by the updateLoop's useEffect if the new track starts playing.
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = undefined;
         }
+        return; // Important to exit the current loop iteration.
+      }
 
+      // Continue loop if transport is still started
+      if (Tone.Transport.state === 'started') {
         animationFrameRef.current = requestAnimationFrame(updateLoop);
+      } else {
+        // If transport is not 'started' (e.g., paused, stopped), clear any pending animation frame
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = undefined;
+        }
+        // Update progress one last time when paused/stopped to reflect exact position
+        const finalSeconds = Tone.Transport.seconds;
+        const finalProgress = Math.min(Math.max(finalSeconds / currentTrackDuration, 0), 1);
+        if (!isNaN(finalProgress)) {
+          setProgress(finalProgress);
+        }
+      }
     };
 
-    if (Tone.Transport.state === 'started') {
-        // Only start loop if transport is already started (controlled by playPauseToggle)
-        animationFrameRef.current = requestAnimationFrame(updateLoop);
+    if (isPlaying && Tone.Transport.state === 'started') {
+      // Only start the loop if user intends to play AND transport is actually running
+      console.log(`UpdateLoop useEffect: Starting animation frame loop. isPlaying: ${isPlaying}, Duration: ${durationRef.current.toFixed(2)}`);
+      animationFrameRef.current = requestAnimationFrame(updateLoop);
     } else {
-        // Ensure loop is stopped if transport isn't running
-         if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = undefined;
-         }
+      // If not playing or transport not started, ensure loop is stopped.
+      // Also, update progress once to reflect current state (e.g., after seek, manual pause, or initial load before play)
+      // console.log(`UpdateLoop useEffect: Not starting/stopping loop. isPlaying: ${isPlaying}, Transport.state: ${Tone.Transport.state}`);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      
+      const currentTrackDuration = durationRef.current;
+      if (currentTrackDuration > 0 && !isNaN(currentTrackDuration)) {
+          const currentSeconds = Tone.Transport.seconds;
+          const calculatedProgress = Math.min(Math.max(currentSeconds / currentTrackDuration, 0), 1);
+          if (!isNaN(calculatedProgress)) {
+              setProgress(calculatedProgress);
+          }
+      } else if (Tone.Transport.seconds === 0) { // Handles initial state before duration is known
+          setProgress(0);
+      }
     }
 
     return () => {
-        isActive = false;
-        if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = undefined;
-        }
+      isActive = false;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+        // console.log("UpdateLoop useEffect: Cleanup, cancelled animation frame.");
+      }
     };
-  }, [isPlaying, duration, handleNextTrack]); // isPlaying reflects Transport state intent
+  // isPlaying: to start/stop the loop.
+  // duration: to re-evaluate if loop conditions change or for initial one-off progress set.
+  // setProgress, setIsPlaying are stable setters from useState.
+  // handleNextTrack is a dependency because it's called by the loop.
+  }, [isPlaying, duration, setProgress, setIsPlaying, handleNextTrack]);
 
 
   const currentTrack = currentTrackIndex !== null && currentTrackIndex < playlist.length
@@ -434,17 +526,40 @@ export default function MusicPlayer() {
     if (playlist.length === 0) {
       fetch('/api/audio-list')
         .then(res => res.json())
-        .then(data => {
+        .then(async data => {
           if (Array.isArray(data.files) && data.files.length > 0) {
-            const tracks = data.files.map((filePath: string, idx: number) => {
+            const tracks = await Promise.all(data.files.map(async (filePath: string, idx: number) => {
               const name = filePath.split('/').pop() || `Track ${idx + 1}`;
+              let title = '';
+              let artist = '';
+              let album = '';
+              try {
+                const response = await fetch(`/${filePath}`);
+                const blob = await response.blob();
+                // @ts-expect-error
+                const jsmediatags = await import('jsmediatags/dist/jsmediatags.min.js');
+                await new Promise<void>((resolve) => {
+                  jsmediatags.read(blob, {
+                    onSuccess: ({ tags }: { tags: any }) => {
+                      title = tags.title || '';
+                      artist = tags.artist || '';
+                      album = tags.album || '';
+                      resolve();
+                    },
+                    onError: () => resolve(),
+                  });
+                });
+              } catch (e) { /* ignore */ }
               return {
                 id: `default-${idx}-${name}`,
                 name,
                 file: undefined,
                 url: `/${filePath}`,
+                title,
+                artist,
+                album,
               };
-            });
+            }));
             setPlaylist(tracks);
             setCurrentTrackIndex(0); // Optionally auto-select first track
           }
@@ -453,73 +568,157 @@ export default function MusicPlayer() {
     }
   }, []);
 
+  const filteredPlaylist = playlist.filter(track => track.name.toLowerCase().includes(search.toLowerCase()));
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    // Eagerly initialize analyser and AudioContext on mount
+    const init = async () => {
+      try {
+        await Tone.start(); // Attempt to start AudioContext automatically
+      } catch (e) {
+        // Ignore errors, fallback to overlay if needed
+      }
+      if (Tone.context.state !== 'running') {
+        setShowStartOverlay(true);
+      } else {
+        setShowStartOverlay(false);
+      }
+      if (!analyserRef.current) {
+        analyserRef.current = new Tone.Analyser('fft', 1024);
+        setAnalyser(analyserRef.current);
+        Tone.Destination.volume.value = Tone.gainToDb(volumeRef.current);
+        console.log('Tone.js Analyser created and volume set.');
+      }
+      setAudioContextState(Tone.context.state);
+    };
+    init();
+    // Listen for AudioContext state changes
+    const handler = () => setAudioContextState(Tone.context.state);
+    Tone.context.on('statechange', handler);
+    return () => {
+      Tone.context.off('statechange', handler);
+    };
+  // Only run on mount and unmount (or if Tone.context itself could be replaced, which is not the case here)
+  // Volume is handled by handleVolumeChange for dynamic updates, and set once on analyser creation if needed.
+  }, []);
+
+  const handleStartVisualizer = async () => {
+    await Tone.start();
+    setShowStartOverlay(false);
+    setAudioContextState(Tone.context.state);
+  };
+
+  const handleReorder = (newTracks: Track[]) => {
+    setPlaylist(newTracks);
+  };
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const event = { target: { files: acceptedFiles } } as any;
+    handleFileUpload(event);
+  }, [handleFileUpload]);
+  useDropzone({ onDrop, accept: { 'audio/*': [] }, multiple: true });
+
+  const handleRemove = (trackId: string) => {
+    setPlaylist(prev => {
+      const idx = prev.findIndex(t => t.id === trackId);
+      const newList = prev.filter(t => t.id !== trackId);
+      if (idx === currentTrackIndex) {
+        setIsPlaying(false);
+        setCurrentTrackIndex(newList.length > 0 ? 0 : null);
+      } else if (idx < currentTrackIndex!) {
+        setCurrentTrackIndex(i => (i !== null ? i - 1 : null));
+      }
+      return newList;
+    });
+  };
+
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background">
-      {/* Top Section: Visualizer */}
-      <div className="flex-grow h-2/3 relative">
-        {/* Blurred background for sphere */}
-        <div className="absolute inset-0 backdrop-blur-xl bg-black/10"></div> {/* Added for sphere background blur */}
-        <React.Suspense fallback={<Skeleton className="w-full h-full bg-muted/30" />}>
-            <ClientOnly fallback={<Skeleton className="w-full h-full bg-muted/30" />}>
-                 {/* Ensure SphereVisualizer has a transparent background itself if needed */}
-                 {analyserRef.current && <SphereVisualizer analyserNode={analyserRef.current} isPlaying={isPlaying} />}
-                 {!analyserRef.current && <Skeleton className="w-full h-full bg-muted/30" />}
-            </ClientOnly>
-        </React.Suspense>
-      </div>
-
-      {/* Bottom Section: Controls and Playlist */}
-      <div className="flex-shrink-0 h-1/3 bg-transparent text-card-foreground p-4 overflow-hidden relative"> {/* Changed bg-card to bg-transparent */}
-         {/* Glassmorphic card for controls */}
-         <Card className="h-full flex flex-col bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-xl"> {/* Applied glassmorphism styles */}
-            <CardContent className="flex flex-col flex-grow p-4 overflow-hidden">
-
-             {/* File Upload */}
-              <div className="mb-4 flex items-center justify-center">
-                  <label htmlFor="audio-upload" className="cursor-pointer">
-                      <Button asChild variant="outline" onClick={ensureAudioContext}>
-                          <span>Upload Audio</span>
-                      </Button>
-                      <Input
-                         id="audio-upload"
-                         type="file"
-                         accept=".mp3, .wav, .ogg, .flac, .m4a"
-                         multiple
-                         onChange={handleFileUpload}
-                         className="hidden"
+    <>
+      {mounted && (
+        <SidebarProvider>
+          <div className="flex flex-row h-full w-full min-h-screen overflow-hidden bg-background">
+            {/* Sidebar: Playlist Navigation */}
+            <Sidebar className="hidden md:flex w-80 flex-shrink-0 glassmorphism">
+              <div className="flex flex-col h-full p-4">
+                <Input
+                  type="text"
+                  placeholder="Search tracks..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="mb-4"
+                  aria-label="Search tracks"
+                />
+                <Playlist
+                  tracks={filteredPlaylist}
+                  currentTrackIndex={currentTrackIndex}
+                  onSelectTrack={selectTrack}
+                  isPlaying={isPlaying}
+                  onReorder={handleReorder}
+                  onRemove={handleRemove}
+                />
+                {/* New Upload Button in Sidebar */}
+                <div className="mt-auto pt-4">
+                  <label htmlFor="sidebar-audio-upload" className="cursor-pointer w-full">
+                    <Button asChild variant="outline" onClick={ensureAudioContext} className="w-full">
+                      <span>Upload Audio</span>
+                    </Button>
+                    <Input
+                      id="sidebar-audio-upload"
+                      type="file"
+                      accept=".mp3, .wav, .ogg, .flac, .m4a"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </Sidebar>
+            {/* Main Content */}
+            <div className="flex flex-col flex-1 h-full w-full">
+              {/* Top Section: Visualizer */}
+              <div className="flex-grow h-1/2 relative w-full">
+                <div className="absolute inset-0 backdrop-blur-xl bg-black/10"></div>
+                {showStartOverlay && audioContextState !== 'running' ? (
+                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 text-white text-xl font-bold cursor-pointer select-none" onClick={handleStartVisualizer}>
+                    Click to Start Visualizer
+                  </div>
+                ) : (
+                  <React.Suspense fallback={<Skeleton className="w-full h-full bg-muted/30" />}>
+                    <ClientOnly fallback={<Skeleton className="w-full h-full bg-muted/30" />}>
+                      {analyser && <SphereVisualizer analyserNode={analyser} isPlaying={isPlaying} />}
+                      {!analyser && <Skeleton className="w-full h-full bg-muted/30" />}
+                    </ClientOnly>
+                  </React.Suspense>
+                )}
+              </div>
+              {/* Bottom Section: Controls */}
+              <div className="flex-shrink-0 bg-transparent text-card-foreground p-4 overflow-hidden relative w-full">
+                <Card className="h-full flex flex-col shadow-lg rounded-xl glassmorphism w-full">
+                  <CardContent className="flex flex-col flex-grow p-4 overflow-hidden justify-end">
+                    <ClientOnly>
+                      <PlaybackControls
+                        isPlaying={isPlaying}
+                        onPlayPause={playPauseToggle}
+                        onNext={handleNextTrack}
+                        onPrevious={handlePreviousTrack}
+                        volume={volume}
+                        onVolumeChange={handleVolumeChange}
+                        progress={progress}
+                        duration={duration}
+                        onSeek={handleSeek}
+                        currentTrackName={currentTrack ? ((currentTrack.artist ? currentTrack.artist + ' - ' : '') + (currentTrack.title || currentTrack.name)) : undefined}
                       />
-                   </label>
-               </div>
-
-               <ClientOnly>
-                 {/* Controls */}
-                 <PlaybackControls
-                     isPlaying={isPlaying} // Reflects transport state
-                     onPlayPause={playPauseToggle}
-                     onNext={handleNextTrack}
-                     onPrevious={handlePreviousTrack}
-                     volume={volume}
-                     onVolumeChange={handleVolumeChange}
-                     progress={progress} // Based on transport time
-                     duration={duration}
-                     onSeek={handleSeek} // Seeks transport time
-                     currentTrackName={currentTrack?.name}
-                 />
-
-                 {/* Playlist */}
-                 <div className="flex-grow overflow-y-auto mt-4">
-                     <Playlist
-                         tracks={playlist}
-                         currentTrackIndex={currentTrackIndex}
-                         onSelectTrack={selectTrack}
-                         isPlaying={isPlaying} // Reflects transport state
-                     />
-                 </div>
-               </ClientOnly>
-
-            </CardContent>
-         </Card>
-      </div>
-    </div>
+                    </ClientOnly>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </SidebarProvider>
+      )}
+    </>
   );
 }

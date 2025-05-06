@@ -1,0 +1,11 @@
+---
+description: API endpoints
+globs: 
+alwaysApply: false
+---
+# API Endpoints
+
+API endpoints are defined within the `src/app/api/` directory using the Next.js App Router.
+
+*   **Audio List API**: The endpoint for fetching the audio list is located at [src/app/api/audio-list/route/route.ts](mdc:src/app/api/audio-list/route/route.ts).
+

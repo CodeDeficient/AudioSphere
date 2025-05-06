@@ -44,9 +44,8 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
   const [presetKeys, setPresetKeys] = useState<string[]>([]);
   const [currentPresetKey, setCurrentPresetKey] = useState<string | null>(null);
   const isPlayingRef = useRef(isPlaying); // Ref to hold the latest isPlaying
-  const [tier, setTier] = useState<Tier>(() => getStoredTier() as Tier || 'auto');
-  const [benchmarking, setBenchmarking] = useState(false);
-  const [fpsResult, setFpsResult] = useState<number | null>(null);
+  const tier: Tier = 'high';
+  const [rotationEnabled, setRotationEnabled] = useState(true);
 
   // Effect to update the ref when the prop changes
   useEffect(() => {
@@ -64,60 +63,6 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
     }
   }, []);
 
-  const setStoredTier = (tier: string, fps: number) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('visualizerTier', JSON.stringify({ tier, fps, date: Date.now() }));
-  };
-
-  const runBenchmark = async (onResult: (tier: string, fps: number) => void) => {
-    let frames = 0;
-    const start = performance.now();
-    const duration = 2000; // 2 seconds
-    function loop() {
-      frames++;
-      if (performance.now() - start < duration) {
-        requestAnimationFrame(loop);
-      } else {
-        const fps = frames / (duration / 1000);
-        let tier: Tier = 'high';
-        if (fps < 18) tier = 'extremely-low';
-        else if (fps < 30) tier = 'low';
-        else if (fps < 50) tier = 'medium';
-        onResult(tier, fps);
-      }
-    }
-    loop();
-  };
-
-  const TIER_SETTINGS: Record<Exclude<Tier, 'auto'>, { pixelRatio: number; segments: number; canvasSize: number }> = {
-    off: { pixelRatio: 1, segments: 16, canvasSize: 256 }, // segments/canvasSize unused
-    'extremely-low': { pixelRatio: 1, segments: 16, canvasSize: 256 },
-    low:   { pixelRatio: 1, segments: 16, canvasSize: 512 },
-    medium:{ pixelRatio: 1.5, segments: 32, canvasSize: 512 },
-    high:  { pixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio : 2, segments: 64, canvasSize: 512 },
-  };
-
-  // Run benchmark on first load if no tier is stored
-  useEffect(() => {
-    if (tier === 'auto') {
-      setBenchmarking(true);
-      runBenchmark((detectedTier, fps) => {
-        setTier(detectedTier as Tier);
-        setStoredTier(detectedTier, fps);
-        setFpsResult(fps);
-        setBenchmarking(false);
-      });
-    }
-  }, [tier]);
-
-  // Allow user to override tier
-  const handleTierChange = (newTier: string) => {
-    if (['off','extremely-low','low','medium','high','auto'].includes(newTier)) {
-      setTier(newTier as Tier);
-      setStoredTier(newTier, fpsResult || 0);
-    }
-  };
-
   useEffect(() => {
     console.log("SphereVisualizer isPlaying:", isPlaying);
     if (!mountRef.current || !analyserNode) return;
@@ -129,7 +74,7 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
     cameraRef.current = new THREE.PerspectiveCamera(75, mount.clientWidth / mount.clientHeight, 0.1, 1000);
     rendererRef.current = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha true for transparent background
     rendererRef.current.setSize(mount.clientWidth, mount.clientHeight);
-    const settings = TIER_SETTINGS[tier === 'auto' ? 'high' : tier as Exclude<Tier, 'auto'>];
+    const settings = { pixelRatio: 1, segments: 64, canvasSize: 512 };
     rendererRef.current.setPixelRatio(settings.pixelRatio);
     rendererRef.current.setClearColor(0x000000, 0); // Set clear color to black with 0 alpha
     mount.appendChild(rendererRef.current.domElement);
@@ -169,13 +114,7 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
           setPresetKeys(keys);
           console.log("Available preset keys:", JSON.stringify(keys)); // MODIFIED: Uncommented to see all preset names
 
-          let forcedSimplePreset = null;
-          if (tier === 'low' || tier === 'extremely-low') {
-            // Try to find a simple preset
-            const simpleKey = keys.find(k => /simple|minimal|basic|test|debug/i.test(k));
-            if (simpleKey) forcedSimplePreset = simpleKey;
-          }
-          const initialPresetKey = forcedSimplePreset || keys[0];
+          const initialPresetKey = keys[0];
           setCurrentPresetKey(initialPresetKey);
           if (visualizerRef.current) {
             visualizerRef.current.loadPreset(loadedPresets[initialPresetKey], 0);
@@ -208,7 +147,6 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
     cameraRef.current.position.z = 10;
 
     console.log("SphereVisualizer: Main useEffect setup complete."); // ADDED LOG
-    const firstRenderDoneRef = { current: false }; // ADDED: Ref to track first render
 
     // --- Animation Loop ---
     const BUTTERCHURN_FRAME_SKIP: Record<Exclude<Tier, 'auto'>, number> = {
@@ -222,11 +160,11 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       // Throttle Butterchurn render based on tier
-      const skip = BUTTERCHURN_FRAME_SKIP[tier === 'auto' ? 'high' : tier as Exclude<Tier, 'auto'>];
+      const skip = BUTTERCHURN_FRAME_SKIP['high'];
       butterchurnFrame++;
       const shouldRenderButterchurn = butterchurnFrame % (skip + 1) === 0;
       // Only render Butterchurn at the right interval
-      if (visualizerRef.current && isPlayingRef.current && shouldRenderButterchurn) {
+      if (visualizerRef.current && shouldRenderButterchurn) {
         try {
           visualizerRef.current.render();
           if (textureRef.current) {
@@ -237,7 +175,7 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
         }
       }
       // Sphere and scene always update
-      if (sphereRef.current) {
+      if (sphereRef.current && rotationEnabled) {
         sphereRef.current.rotation.x += 0.001;
         sphereRef.current.rotation.y += 0.002;
       }
@@ -292,87 +230,56 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
        textureRef.current = null;
        canvasRef.current = null;
     };
-  }, [analyserNode]); // MODIFIED: Removed isPlaying dependency
+  }, [analyserNode, isPlaying, rotationEnabled, tier]);
 
    useEffect(() => {
       // Log playing state change
      // console.log("isPlaying state changed:", isPlaying);
    }, [isPlaying]);
 
-  if (tier === 'off') {
-    return (
-      <div className="absolute top-2 left-2 z-10 w-48">
-        <Label htmlFor="tier-select" className="text-xs text-foreground/80">Performance Tier</Label>
-        <Select
-          value={tier}
-          onValueChange={handleTierChange}
-          disabled={benchmarking}
-        >
-          <SelectTrigger id="tier-select" className="h-8 text-xs bg-background/70 backdrop-blur-sm">
-            <SelectValue placeholder="Select Tier" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="off" className="text-xs">Visualizer Off</SelectItem>
-            <SelectItem value="extremely-low" className="text-xs">Extremely Low</SelectItem>
-            <SelectItem value="low" className="text-xs">Low</SelectItem>
-            <SelectItem value="medium" className="text-xs">Medium</SelectItem>
-            <SelectItem value="high" className="text-xs">High</SelectItem>
-            <SelectItem value="auto" className="text-xs">Auto (Benchmark)</SelectItem>
-          </SelectContent>
-        </Select>
-        {benchmarking && <div className="text-xs mt-1">Benchmarking...</div>}
-        {fpsResult && <div className="text-xs mt-1">Detected: {tier} ({fpsResult.toFixed(1)} FPS)</div>}
-      </div>
-    );
-  }
-
   return (
-    <div ref={mountRef} className="w-full h-full relative">
-       {/* Preset Dropdown */}
-        <div className="absolute top-2 right-2 z-10 w-64">
+    <div ref={mountRef} className="w-full h-full relative overflow-hidden select-none">
+      {/* Psychedelic Animated Gradient Background */}
+      <div className="absolute inset-0 z-0 animate-psy-gradient bg-[radial-gradient(ellipse_at_20%_20%,rgba(255,0,200,0.3)_0%,rgba(0,255,255,0.2)_40%,rgba(0,0,0,0.1)_100%),radial-gradient(ellipse_at_80%_80%,rgba(0,255,255,0.3)_0%,rgba(255,255,0,0.2)_40%,rgba(0,0,0,0.1)_100%)] blur-2xl opacity-80 pointer-events-none" />
+      {/* Preset Dropdown and Rotation Toggle */}
+      <div className="absolute top-2 right-2 z-20 flex flex-col items-end space-y-2 w-64 max-w-[90vw]">
+        {/* Preset Dropdown - flush right */}
+        <div className="w-full">
           <Label htmlFor="preset-select" className="text-xs text-foreground/80 sr-only">Preset</Label>
           <Select
             value={currentPresetKey ?? ''}
             onValueChange={handlePresetChange}
             disabled={presetKeys.length === 0}
           >
-            <SelectTrigger id="preset-select" className="h-8 text-xs bg-background/70 backdrop-blur-sm">
+            <SelectTrigger
+              id="preset-select"
+              className="h-8 text-xs bg-black/60 text-white rounded px-3 py-1 shadow focus:outline-none focus:ring-2 focus:ring-ring border-none w-full min-w-[120px] max-w-full justify-end text-right"
+              style={{textAlign: 'right'}}
+            >
               <SelectValue placeholder="Select Preset" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-black/90 text-white rounded shadow border-none mt-1 right-0 left-auto min-w-[120px] max-w-[90vw]" style={{right: 0, left: 'auto'}}>
               {presetKeys.map((key) => (
-                <SelectItem key={key} value={key} className="text-xs">
+                <SelectItem key={key} value={key} className="text-xs text-white hover:bg-white/10 focus:bg-white/20 rounded px-3 py-1 cursor-pointer text-right justify-end">
                   {key}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        {/* Tier Dropdown */}
-        <div className="absolute top-2 left-2 z-10 w-48">
-          <Label htmlFor="tier-select" className="text-xs text-foreground/80">Performance Tier</Label>
-          <Select
-            value={tier}
-            onValueChange={handleTierChange}
-            disabled={benchmarking}
-          >
-            <SelectTrigger id="tier-select" className="h-8 text-xs bg-background/70 backdrop-blur-sm">
-              <SelectValue placeholder="Select Tier" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="off" className="text-xs">Visualizer Off</SelectItem>
-              <SelectItem value="extremely-low" className="text-xs">Extremely Low</SelectItem>
-              <SelectItem value="low" className="text-xs">Low</SelectItem>
-              <SelectItem value="medium" className="text-xs">Medium</SelectItem>
-              <SelectItem value="high" className="text-xs">High</SelectItem>
-              <SelectItem value="auto" className="text-xs">Auto (Benchmark)</SelectItem>
-            </SelectContent>
-          </Select>
-          {benchmarking && <div className="text-xs mt-1">Benchmarking...</div>}
-          {fpsResult && <div className="text-xs mt-1">Detected: {tier} ({fpsResult.toFixed(1)} FPS)</div>}
-        </div>
+        {/* Rotation Toggle - directly below dropdown, same width and alignment */}
+        <button
+          className="w-full bg-black/60 text-white text-xs px-3 py-1 rounded shadow focus:outline-none focus:ring-2 focus:ring-ring"
+          aria-pressed={rotationEnabled}
+          aria-label={rotationEnabled ? 'Disable sphere rotation' : 'Enable sphere rotation'}
+          onClick={() => setRotationEnabled(r => !r)}
+          type="button"
+        >
+          {rotationEnabled ? 'Rotation: On' : 'Rotation: Off'}
+        </button>
+      </div>
     </div>
-    );
+  );
 };
 
-export default SphereVisualizer;
+export default React.memo(SphereVisualizer);

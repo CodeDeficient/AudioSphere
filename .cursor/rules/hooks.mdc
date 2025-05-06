@@ -1,0 +1,11 @@
+---
+description: React hooks
+globs: 
+alwaysApply: false
+---
+# Hooks
+
+Custom React hooks used throughout the application are located in the `src/hooks/` directory.
+
+[// ... existing code ...](mdc:src/hooks)
+

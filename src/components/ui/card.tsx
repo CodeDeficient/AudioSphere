@@ -9,11 +9,16 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg   bg-white/20 backdrop-blur-xl overflow-hidden relative group",
       className
     )}
     {...props}
-  />
+  >
+    {/* SVG Noise Overlay */}
+    <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none group-opacity-20  " xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noiseFilter)"/></svg>
+    {/* Card content */}
+    {props.children}
+  </div>
 ))
 Card.displayName = "Card"
 

@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Public Assets
+
+Static assets served by the application are located in the `public/` directory.
+
+*   Audio files are stored in [public/audio/](mdc:public/audio).
+*   Image files are stored in [public/images/](mdc:public/images).
+

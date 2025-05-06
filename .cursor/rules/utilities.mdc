@@ -1,0 +1,11 @@
+---
+description: Utilities
+globs: 
+alwaysApply: false
+---
+# Utilities
+
+General utility functions and helper libraries are stored in the `src/lib/` directory.
+
+[// ... existing code ...](mdc:src/lib)
+

@@ -1,0 +1,11 @@
+---
+description: AI Code
+globs: 
+alwaysApply: false
+---
+# AI Code
+
+Code related to AI functionality is located in the `src/ai/` directory.
+
+[// ... existing code ...](mdc:src/ai)
+
