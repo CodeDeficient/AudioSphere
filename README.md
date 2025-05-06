@@ -1,6 +1,6 @@
 # AudioSphere
 
-AudioSphere is a web-based music player featuring audio visualization, playlist management, and dynamic track loading. It's built with Next.js, Tone.js for audio processing, and leverages Firebase for hosting.
+AudioSphere is a web-based music player featuring audio visualization, playlist management, and dynamic track loading. It's built with Next.js, Tone.js for audio processing, and is deployed on Vercel.
 
 ## Preview
 
@@ -109,7 +109,7 @@ AudioSphere is built with Next.js and leverages modern web technologies to provi
 *   Real-time audio spectrum visualization using Tone.js.
 *   Playback controls for seamless user experience.
 *   File upload and drag-and-drop support for local audio tracks.
-*   Integration with Firebase for hosting and serving static audio assets.
+*   Deployment on Vercel, with static audio assets served alongside the application.
 *   Nix development environment for reproducible builds (via `.idx/dev.nix`).
 
 ## Getting Started
@@ -131,8 +131,7 @@ To run this project locally, follow these steps:
     # pnpm install
     ```
 3.  **Set up environment variables (if any):**
-    If there are required environment variables (e.g., for Firebase configuration if not handled by `firebase.json`), create a `.env.local` file in the root directory and add them there. Refer to `.env.example` if one exists (we might need to create this).
-    _Currently, specific environment variables beyond standard Next.js ones are not explicitly defined as required for local dev in the existing setup._
+    If your deployment or specific features require environment variables, create a `.env.local` file in the root directory and add them there. Refer to `.env.example` if one exists for guidance on required variables.
 
 4.  **Run the development server:**
     ```bash
