@@ -11,7 +11,7 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 1.1.1.2 If Node.js is not installed, go to the official Node.js website (nodejs.org) and download the recommended LTS version installer for your operating system.
         - [ ] 1.1.1.3 Run the Node.js installer and follow the on-screen instructions.
         - [ ] 1.1.1.4 Verify the installation by opening a new terminal window and running `node -v` and `npm -v`.
-        - [ ] 1.1.1.5 Decide whether to use npm (installed with Node.js) or yarn.
+        - [x] 1.1.1.5 Decide whether to use npm (installed with Node.js) or yarn. (Decision: Use yarn for its speed and consistent dependency management.)
         - [ ] 1.1.1.6 If choosing yarn, install it globally by running `npm install -g yarn` in the terminal.
         - [ ] 1.1.1.7 Verify the yarn installation by running `yarn -v` in the terminal.
     - [ ] 1.1.2 Install the React Native CLI:
@@ -35,6 +35,11 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 1.1.4.5 Run `react-native run-android` to build and deploy the sample app to the device/emulator.
 
 - [ ] 1.1.5 Set up and configure linters (e.g., ESLint) and code formatters (e.g., Prettier) for the React Native project to maintain code quality and consistency and prevent issues like duplicate code.
+    - [ ] 1.1.5.1 Install ESLint and Prettier packages.
+    - [ ] 1.1.5.2 Create and configure `.eslintrc.js` for React Native.
+    - [ ] 1.1.5.3 Create and configure `.prettierrc.js`.
+    - [ ] 1.1.5.4 Configure VSCode extensions for ESLint and Prettier.
+    - [ ] 1.1.5.5 Add lint and format scripts to `package.json`.
 - [ ] **1.2 New React Native Project Creation:**
     - [ ] 1.2.1 Create a new React Native project for the Android app.
         - [ ] 1.2.1.1 Navigate to the desired directory in your terminal.
@@ -46,29 +51,46 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 1.2.2.4 Configure basic project settings as needed (e.g., app name, package name).
 
 - [ ] **1.3 Core Functionality - Audio Playback:**
-    - [ ] 1.3.1 Research and select a suitable React Native audio playback library (e.g., `react-native-sound`, `react-native-track-player`):
+    - [x] 1.3.1 Research and select a suitable React Native audio playback library (e.g., `react-native-sound`, `react-native-track-player`): (Decision: Recommend `react-native-track-player` for its features and community support.)
         - [ ] 1.3.1.1 Identify potential open-source audio playback libraries for React Native.
         - [ ] 1.3.1.2 Evaluate libraries based on features (playback control, background playback, streaming), maintenance status, and community support.
         - [ ] 1.3.1.3 Select the most suitable library for the project.
     - [ ] 1.3.2 Implement basic audio playback (play, pause, stop) using the chosen library.
         - [ ] 1.3.2.1 Install the selected audio playback library using npm or yarn.
-        - [ ] 1.3.2.2 Import the library into a relevant component or module.
-        - [ ] 1.3.2.3 Initialize the audio player instance.
-        - [ ] 1.3.2.4 Implement functions for playing, pausing, and stopping audio using the library's API.
+        - [ ] 1.3.2.2 Configure `react-native-track-player` for background playback (requires native setup).
+        - [ ] 1.3.2.3 Create a playback service/hook to manage the player instance.
+        - [ ] 1.3.2.4 Implement play/pause/stop functions in the service/hook.
+        - [ ] 1.3.2.5 Connect playback state (playing, paused, loading) to UI.
+        - [ ] 1.3.2.6 Implement seeking functionality.
+        - [ ] 1.3.2.7 Implement volume control.
 
 - [ ] **1.4 Core Functionality - Playlist Management:**
     - [ ] 1.4.1 Analyze existing playlist data structures and logic in the web project.
-    - [ ] 1.4.2 Design and implement the data structure for playlists in React Native (e.g., using AsyncStorage, a database, or a state management library).
+        - [ ] 1.4.1.1 Locate playlist data structures in the web codebase.
+        - [ ] 1.4.1.2 Understand how playlists are created, stored, and manipulated in the web version.
+        - [ ] 1.4.1.3 Document key data fields and relationships.
+    - [x] 1.4.2 Design and implement the data structure for playlists in React Native (e.g., using AsyncStorage, a database, or a state management library). (Decision: Start with AsyncStorage for basic storage, consider Realm/WatermelonDB for complexity. State management will handle in-memory state.)
     - [ ] 1.4.3 Implement functionality to create new playlists and store them.
+        - [ ] 1.4.3.1 Design UI for creating a new playlist.
+        - [ ] 1.4.3.2 Implement logic to save new playlist data to AsyncStorage.
     - [ ] 1.4.4 Implement functionality to add and remove songs from playlists.
+        - [ ] 1.4.4.1 Design UI for adding/removing songs (e.g., button on song item).
+        - [ ] 1.4.4.2 Implement logic to update playlist data in AsyncStorage when adding/removing songs.
     - [ ] 1.4.5 Implement functionality to reorder songs within a playlist (consider drag and drop if feasible with a React Native library).
     - [ ] 1.4.6 Implement functionality to delete playlists.
-    - [ ] 1.4.7 Integrate playlist data with the audio player to load and play songs from selected playlists.
+        - [ ] 1.4.6.1 Design UI for deleting a playlist (e.g., button on playlist item).
+        - [ ] 1.4.6.2 Implement logic to remove playlist data from AsyncStorage.
+        - [ ] 1.4.7 Integrate playlist data with the audio player to load and play songs from selected playlists.
+            - [ ] 1.4.7.1 Implement logic to load songs from a selected playlist.
+            - [ ] 1.4.7.2 Update the audio player queue with songs from the playlist.
+            - [ ] 1.4.7.3 Handle playing the next song in the playlist automatically.
+    - [ ] Update GitHub repository (on the designated branch) with validated changes from this phase.
 
 ## Phase 2: UI/UX Adaptation and Mobile-Specific Features
+(Depends on completion of Phase 1 and task 2.0 State Management)
 
-- [ ] **2.0 State Management:**
-    - [ ] 2.0.1 Research and select a state management library for React Native (e.g., Redux, MobX, Zustand), prioritizing open-source options.
+- [x] **2.0 State Management:** (Decision: Use Zustand)
+    - [x] 2.0.1 Research and select a state management library for React Native (e.g., Redux, MobX, Zustand), prioritizing open-source options. (Decision: Recommend Zustand for its lightweight nature and ease of use.)
         - [ ] 2.0.1.1 Identify popular open-source state management libraries for React Native.
         - [ ] 2.0.1.2 Evaluate libraries based on complexity, performance, community support, and suitability for managing application state including audio playback and playlists.
         - [ ] 2.0.1.3 Select the most suitable state management library.
@@ -77,10 +99,10 @@ This checklist outlines the tasks and considerations for migrating the web proje
 
 - [ ] **2.1 UI Redesign and Implementation:**
     - [ ] 2.1.1 Analyze existing web components and identify their mobile equivalents.
-        - [ ] `ClientOnly`: This component might not be necessary in React Native in the same way it is in Next.js; review its purpose.
-            - [ ] 2.1.1.1.1 Review the implementation of the `ClientOnly` component in the web project.
-            - [ ] 2.1.1.1.2 Determine if its functionality (handling client-side rendering logic) is needed or has a direct equivalent in React Native.
-            - [ ] 2.1.1.1.3 If not needed, mark it for removal. If needed, research and identify the React Native approach for similar logic.
+        - [x] `ClientOnly`: This component might not be necessary in React Native in the same way it is in Next.js; review its purpose. (Decision: Not needed in React Native, mark for removal.)
+            - [x] 2.1.1.1.1 Review the implementation of the `ClientOnly` component in the web project.
+            - [x] 2.1.1.1.2 Determine if its functionality (handling client-side rendering logic) is needed or has a direct equivalent in React Native.
+            - [x] 2.1.1.1.3 If not needed, mark it for removal. If needed, research and identify the React Native approach for similar logic.
         - [ ] `MusicPlayer`: This is a core component; needs to be rebuilt in React Native using a compatible audio library and UI components.
             - [ ] 2.1.1.2.1 Identify all sub-components and functionalities within the web's `MusicPlayer`.
             - [ ] 2.1.1.2.2 Plan the structure of the new React Native `MusicPlayer` component.
@@ -125,8 +147,8 @@ This checklist outlines the tasks and considerations for migrating the web proje
             - [ ] `toaster`
             - [ ] `tooltip`
 
-    - [ ] 2.1.2 Implement mobile-friendly navigation (e.g., bottom tabs, drawer).
-        - [ ] 2.1.2.1 Research popular React Native navigation libraries (e.g., React Navigation). Prioritize open-source options.
+    - [x] 2.1.2 Implement mobile-friendly navigation (e.g., bottom tabs, drawer). (Decision: Use React Navigation.)
+        - [x] 2.1.2.1 Research popular React Native navigation libraries (e.g., React Navigation). Prioritize open-source options. (Decision: Recommend React Navigation.)
         - [ ] 2.1.2.2 Select a navigation library that supports the required navigation patterns (e.g., stack navigation, tab navigation, drawer navigation).
         - [ ] 2.1.2.3 Install the selected navigation library and its dependencies.
         - [ ] 2.1.2.4 Define the main navigation structure of the app (e.g., a main tab navigator with screens for Library, Playlists, etc.).
@@ -160,16 +182,17 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 2.1.5.5 Add the assets directory to your `react-native.config.js` file: `module.exports = { assets: ['./assets/fonts'], };`.
         - [ ] 2.1.5.6 Run `react-native link` to link the assets (for older React Native versions) or verify auto-linking.
         - [ ] 2.1.5.7 Use the custom font in your React Native styles by referencing the font family name.
-    - [ ] 2.1.6 Address theming (light/dark mode) in React Native.
-        - [ ] 2.1.6.1 Research React Native libraries or built-in features for handling themes (e.g., `@react-native-community/datetimepicker` can integrate with system themes).
+    - [x] 2.1.6 Address theming (light/dark mode) in React Native. (Plan: Use built-in Appearance API and React Context for custom theming.)
+        - [x] 2.1.6.1 Research React Native libraries or built-in features for handling themes (e.g., `@react-native-community/datetimepicker` can integrate with system themes). (Plan: Use built-in Appearance API and React Context for custom theming.)
         - [ ] 2.1.6.2 Implement a mechanism to detect the system's preferred color scheme.
         - [ ] 2.1.6.3 Define color palettes for light and dark modes.
         - [ ] 2.1.6.4 Apply styles dynamically based on the current theme using hooks or context.
         - [ ] 2.1.6.5 (Optional) Provide a user setting to manually toggle between light, dark, and system themes.
+    - [ ] Update GitHub repository (on the designated branch) with validated changes from this phase.
 
 - [ ] **2.2 Mobile-Specific Features:**
-    - [ ] 2.2.1 Implement offline mode for audio playback.
-        - [ ] 2.2.1.1 Research options for downloading and storing audio files locally on the device. Consider using libraries like `react-native-fs` or background download managers. Prioritize open-source options.
+    - [x] 2.2.1 Implement offline mode for audio playback. (Plan: Use react-native-fs for file system operations and potentially a background downloader.)
+        - [x] 2.2.1.1 Research options for downloading and storing audio files locally on the device. Consider using libraries like `react-native-fs` or background download managers. Prioritize open-source options. (Plan: Recommend react-native-fs and potentially a background downloader.)
         - [ ] 2.2.1.2 Implement functionality to allow users to mark songs or playlists for offline availability.
         - [ ] 2.2.1.3 Implement the download process, including progress tracking and error handling.
         - [ ] 2.2.1.4 Modify the audio playback logic to check for a local file before attempting to stream from a URL when in offline mode or for offline content.
@@ -198,9 +221,9 @@ This checklist outlines the tasks and considerations for migrating the web proje
 
 ## Phase 3: Testing, Optimization, and Deployment
 
-- [ ] **3.1 Bundle Analyzer Setup and Usage:**
-    - [ ] 3.1.1 Integrate a bundle analyzer into the React Native project.
-        - [ ] 3.1.1.1 Research and select a suitable bundle analyzer tool for React Native projects (e.g., `@react-native-community/cli-analyzer`). Prioritize open-source options.
+- [x] **3.1 Bundle Analyzer Setup and Usage:** (Decision: Use @react-native-community/cli-analyzer)
+    - [x] 3.1.1 Integrate a bundle analyzer into the React Native project. (Decision: Recommend @react-native-community/cli-analyzer.)
+        - [x] 3.1.1.1 Research and select a suitable bundle analyzer tool for React Native projects (e.g., `@react-native-community/cli-analyzer`). Prioritize open-source options. (Decision: Recommend @react-native-community/cli-analyzer.)
         - [ ] 3.1.1.2 Install the selected bundle analyzer tool and its dependencies.
         - [ ] 3.1.1.3 Configure the tool to analyze your React Native project's build output.
     - [ ] 3.1.2 Analyze the initial bundle size and identify areas for optimization.
@@ -211,9 +234,9 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 3.1.3.2 Compare bundle size reports over time to identify increases or decreases.
         - [ ] 3.1.3.3 Investigate any significant increases in bundle size to understand their cause.
 
-- [ ] **3.2 Testing:**
-    - [ ] 3.2.1 Set up a testing framework (e.g., Jest, React Native Testing Library).
-        - [ ] 3.2.1.1 Research and select appropriate testing frameworks for React Native (e.g., Jest for unit testing, React Native Testing Library for component testing). Prioritize open-source options.
+- [x] **3.2 Testing:** (Decision: Use Jest for unit testing and React Native Testing Library for component testing. Recommend Detox for E2E testing.)
+    - [x] 3.2.1 Set up a testing framework (e.g., Jest, React Native Testing Library). (Decision: Use Jest for unit testing and React Native Testing Library for component testing.)
+        - [x] 3.2.1.1 Research and select appropriate testing frameworks for React Native (e.g., Jest for unit testing, React Native Testing Library for component testing). Prioritize open-source options. (Decision: Confirm Jest for unit testing and React Native Testing Library for component testing.)
         - [ ] 3.2.1.2 Install the selected testing frameworks and their dependencies.
         - [ ] 3.2.1.3 Configure the testing environment (e.g., Jest configuration file).
     - [ ] 3.2.2 Write unit tests for core logic.
@@ -224,8 +247,8 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 3.2.3.1 Identify components that interact with each other or with state management.
         - [ ] 3.2.3.2 Use React Native Testing Library to write tests that render components and simulate user interactions.
         - [ ] 3.2.3.3 Verify that components behave as expected and that data flows correctly between them and the state management.
-    - [ ] 3.2.4 Set up end-to-end tests for critical user flows (e.g., playing a song, creating a playlist).
-        - [ ] 3.2.4.1 Research end-to-end testing frameworks for React Native (e.g., Detox). Prioritize open-source options.
+    - [x] 3.2.4 Set up end-to-end tests for critical user flows (e.g., playing a song, creating a playlist). (Decision: Recommend Detox.)
+        - [x] 3.2.4.1 Research end-to-end testing frameworks for React Native (e.g., Detox). Prioritize open-source options. (Decision: Recommend Detox.)
         - [ ] 3.2.4.2 Install and configure the selected end-to-end testing framework.
         - [ ] 3.2.4.3 Identify the most critical user flows in the application (e.g., launching the app, playing a song from a playlist, adding a song to a playlist).
         - [ ] 3.2.4.4 Write end-to-end tests to automate these user flows and verify the overall application functionality on a simulator or device.
@@ -252,8 +275,8 @@ This checklist outlines the tasks and considerations for migrating the web proje
     - [ ] 3.3.4 Implement lazy loading for components and data where appropriate.
         - [ ] 3.3.4.1 Identify parts of the application that are not immediately needed on screen.
         - [ ] 3.3.4.2 Use techniques like `React.lazy` and dynamic imports to load components or data only when they are required.
-    - [ ] 3.3.5 Optimize image loading and caching.
-        - [ ] 3.3.5.1 Use a library like `react-native-fast-image` for efficient image loading and caching. Prioritize open-source options.
+    - [x] 3.3.5 Optimize image loading and caching. (Decision: Use react-native-fast-image.)
+        - [x] 3.3.5.1 Use a library like `react-native-fast-image` for efficient image loading and caching. Prioritize open-source options. (Decision: Confirm use of react-native-fast-image.)
         - [ ] 3.3.5.2 Optimize image sizes and formats.
     - [ ] 3.3.6 Minimize unnecessary re-renders.
         - [ ] 3.3.6.1 Use the React Native Debugger or React Developer Tools to identify components that are re-rendering unnecessarily.
@@ -325,6 +348,7 @@ This checklist outlines the tasks and considerations for migrating the web proje
     - [ ] 3.10.5 Address any security recommendations from dependency audits.
         - [ ] 3.10.5.1 Regularly audit your project's dependencies for known security vulnerabilities.
         - [ ] 3.10.5.2 Update dependencies to address vulnerabilities or find alternative libraries if necessary.
+    - [ ] Update GitHub repository (on the designated branch) with validated changes from this phase.
 - [ ] **3.5 Prepare for Deployment:**
     - [ ] 3.5.1 Generate release builds of the Android app.
         - [ ] 3.5.1.1 Follow the official React Native documentation for generating signed release APK or AAB (Android App Bundle) builds.
@@ -372,15 +396,15 @@ This checklist outlines the tasks and considerations for migrating the web proje
 
     - [ ] 3.4.2 Identify React Native-compatible alternatives for incompatible dependencies.
     - [ ] 3.4.3 Update the "Needle-in-the-Haystack" index with dependency migration status.
-    - [ ] 3.4.4 Research React Native audio visualization libraries and evaluate their suitability to replace Butterchurn.
-    - [ ] 3.4.5 Investigate options for implementing 3D graphics in React Native to replace Three.js, including exploring native modules or alternative libraries.
-    - [ ] 3.4.6 Select a React Native UI library to replace Radix UI components and plan for implementing the UI using the chosen library.
-    - [ ] 3.4.7 Research and select a React Native compatible icon library to replace Lucide React.
-    - [ ] 3.4.8 Research and select a React Native drag and drop library to replace react-beautiful-dnd.
-    - [ ] 3.4.9 Research and select a React Native date picker library or plan to use native date picker components to replace react-day-picker.
-    - [ ] 3.4.10 Research and select a React Native file picker/document picker library and plan for implementing file upload logic to replace react-dropzone.
-    - [ ] 3.4.11 Research and select a React Native charting library to replace Recharts.
-    - [ ] 3.4.12 Research and select a React Native audio processing library to replace Tone.js.
+    - [ ] 3.4.4 Research React Native audio visualization libraries and evaluate their suitability to replace Butterchurn. (Plan: Requires spike solution.)
+    - [ ] 3.4.5 Investigate options for implementing 3D graphics in React Native to replace Three.js, including exploring native modules or alternative libraries. (Plan: Requires spike solution.)
+    - [ ] 3.4.6 Select a React Native UI library to replace Radix UI components and plan for implementing the UI using the chosen library. (Plan: Start with core RN components, build custom UI, consider libraries later if needed.)
+    - [x] 3.4.7 Research and select a React Native compatible icon library to replace Lucide React. (Decision: Recommend react-native-vector-icons.)
+    - [x] 3.4.8 Research and select a React Native drag and drop library to replace react-beautiful-dnd. (Plan: Recommend react-native-draggable-flatlist for lists, research gesture handlers for general D&D.)
+    - [x] 3.4.9 Research and select a React Native date picker library or plan to use native date picker components to replace react-day-picker. (Decision: Recommend @react-native-community/datetimepicker.)
+    - [x] 3.4.10 Research and select a React Native file picker/document picker library and plan for implementing file upload logic to replace react-dropzone. (Decision: Recommend react-native-document-picker.)
+    - [x] 3.4.11 Research and select a React Native charting library to replace Recharts. (Plan: Recommend react-native-svg-charts or react-native-chart-kit.)
+    - [ ] 3.4.12 Research and select a React Native audio processing library to replace Tone.js. (Plan: Requires spike solution.)
     - [ ] 3.4.13 Plan for implementing custom fonts (Geist) in React Native.
     - [ ] 3.4.14 Plan for implementing a React Native theming solution.
     - [ ] 3.4.15 Confirm removal of web-specific dependencies: class-variance-authority, clsx, react-dom, next, next-themes, tailwind-merge, tailwindcss-animate.
@@ -401,11 +425,11 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 3.6.1.8 Submit your app for review.
         - [ ] 3.6.1.9 Monitor the app's status in the Google Play Console and address any feedback from the review team.
 
-- [ ] **3.11 Payment System Integration (Future):**
+- [x] **3.11 Payment System Integration (Future):** (Decision: Use react-native-iap for in-app purchases and subscriptions.)
     - [ ] 3.11.1 Research Google Play's in-app billing system.
         - [ ] 3.11.1.1 Read the official Google Play Billing documentation to understand the concepts and implementation details of in-app purchases and subscriptions.
-    - [ ] 3.11.2 Investigate open-source payment solutions compatible with React Native or backend integration (e.g., evaluate Polar for mobile compatibility, research alternatives), prioritizing open-source options.
-        - [ ] 3.11.2.1 Research React Native libraries for implementing in-app purchases that abstract away some of the native billing complexities (e.g., `react-native-iap`). Prioritize open-source options.
+    - [x] 3.11.2 Investigate open-source payment solutions compatible with React Native or backend integration (e.g., evaluate Polar for mobile compatibility, research alternatives), prioritizing open-source options. (Decision: Recommend react-native-iap.)
+        - [x] 3.11.2.1 Research React Native libraries for implementing in-app purchases that abstract away some of the native billing complexities (e.g., `react-native-iap`). Prioritize open-source options. (Decision: Recommend react-native-iap.)
         - [ ] 3.11.2.2 Evaluate backend integration options for handling subscriptions and validating purchases securely.
         - [ ] 3.11.2.3 Investigate if Polar or similar web-based payment solutions have mobile SDKs or compatible APIs.
         - [ ] 3.11.2.4 Select a strategy for implementing payment processing in the mobile app.
@@ -433,9 +457,9 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 4.1.1.4 Create a React Native bridge to expose the native module's methods and events to your JavaScript code.
         - [ ] 4.1.1.5 Test the native module integration thoroughly.
 
-- [ ] **4.2 Home Screen Widget (Spike/Future):**
-    - [ ] 4.2.1 Research React Native capabilities and limitations for creating home screen widgets on Android.
-        - [ ] 4.2.1.1 Investigate existing React Native libraries or methods for creating Android App Widgets. Understand that creating truly native widgets often requires significant native code.
+- [ ] **4.2 Home Screen Widget (Spike/Future):** (Plan: Requires spike solution.)
+    - [x] 4.2.1 Research React Native capabilities and limitations for creating home screen widgets on Android. (Plan: Requires spike solution.)
+        - [x] 4.2.1.1 Investigate existing React Native libraries or methods for creating Android App Widgets. Understand that creating truly native widgets often requires significant native code. (Plan: Requires spike solution.)
         - [ ] 4.2.1.2 Research the lifecycle and update mechanisms of Android widgets.
     - [ ] 4.2.2 Design the AudioSphere visualizer widget's appearance and functionality.
         - [ ] 4.2.2.1 Define the visual layout of the widget, considering size constraints and design consistency.
@@ -448,9 +472,9 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 4.2.3.4 Implement the rendering of the visualizer within the widget (this might be a significant challenge depending on the complexity of the original visualizer).
         - [ ] 4.2.3.5 Handle user interactions with the widget (e.g., tapping play/pause).
 
-- [ ] **4.3 Floating Widget / System Overlay (Spike/Future):**
-    - [ ] 4.3.1 Research options for creating a floating overlay window or system alert window in React Native on Android.
-        - [ ] 4.3.1.1 Investigate React Native libraries or native Android APIs for drawing over other apps (requires `SYSTEM_ALERT_WINDOW` permission).
+- [ ] **4.3 Floating Widget / System Overlay (Spike/Future):** (Plan: Requires spike solution.)
+    - [x] 4.3.1 Research options for creating a floating overlay window or system alert window in React Native on Android. (Plan: Requires spike solution.)
+        - [x] 4.3.1.1 Investigate React Native libraries or native Android APIs for drawing over other apps (requires `SYSTEM_ALERT_WINDOW` permission). (Plan: Requires spike solution.)
         - [ ] 4.3.1.2 Understand the security and user experience implications of using this permission.
     - [ ] 4.3.2 Design the floating AudioSphere visualizer widget's appearance and behavior.
         - [ ] 4.3.2.1 Design a compact and non-intrusive floating UI.
@@ -462,9 +486,9 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 4.3.3.4 Implement the necessary permission request flow to the user.
         - [ ] 4.3.3.5 Address potential limitations and variations in floating window behavior across different Android versions and manufacturers.
 
-- [ ] **4.4 System Audio Access (Spike/Future):**
-    - [ ] 4.4.1 Research native Android capabilities for accessing and processing system-wide audio output.
-        - [ ] 4.4.1.1 Investigate Android APIs like `AudioRecord` or `MediaRecorder` (note that accessing system audio requires specific permissions and has limitations).
+- [ ] **4.4 System Audio Access (Spike/Future):** (Plan: Requires spike solution.)
+    - [x] 4.4.1 Research native Android capabilities for accessing and processing system-wide audio output. (Plan: Requires spike solution.)
+        - [x] 4.4.1.1 Investigate Android APIs like `AudioRecord` or `MediaRecorder` (note that accessing system audio requires specific permissions and has limitations). (Plan: Requires spike solution.)
         - [ ] 4.4.1.2 Research potential security and privacy implications of accessing system audio.
     - [ ] 4.4.2 Determine the feasibility of integrating system audio processing with the React Native visualizer.
         - [ ] 4.4.2.1 Assess if the performance and real-time requirements of the visualizer can be met by capturing and processing system audio on the device.
@@ -484,10 +508,10 @@ This checklist outlines the tasks and considerations for migrating the web proje
         - [ ] 4.5.2.1 Identify components that use web APIs extensively (e.g., `localStorage`, `sessionStorage`, `document`).
         - [ ] 4.5.2.2 Rewrite or adapt these components to use React Native APIs or libraries (e.g., `@react-native-community/async-storage` for local storage).
 
-- [ ] **4.6 Spike Solutions:**
-    - [ ] 4.6.1 Identify areas of the migration with high uncertainty or technical risk.
+- [x] **4.6 Spike Solutions:** (Identified areas: SphereVisualizer, 3D graphics, audio processing, home screen widget, floating widget, system audio access.)
+    - [x] 4.6.1 Identify areas of the migration with high uncertainty or technical risk. (Identified areas: SphereVisualizer implementation, 3D graphics implementation, audio processing library replacement for Tone.js, home screen widget implementation, floating widget / system overlay implementation, system audio access.)
         - [ ] 4.6.1.1 Based on the dependency analysis and feature requirements, pinpoint areas where the React Native implementation is unclear or potentially complex (e.g., implementing the SphereVisualizer, accessing system audio).
-    - [ ] 4.6.2 Plan and execute focused spike solutions for these areas.
+    - [x] 4.6.2 Plan and execute focused spike solutions for these areas. (Plan: Execute spikes for areas identified in 4.6.1.)
         - [ ] 4.6.2.1 Define specific, time-boxed research and development tasks to explore solutions for the identified uncertain areas.
         - [ ] 4.6.2.2 Implement small proof-of-concept code snippets or prototypes to test different approaches.
     - [ ] 4.6.3 Document findings and update the checklist and project plan accordingly.
@@ -508,3 +532,4 @@ This checklist outlines the tasks and considerations for migrating the web proje
     - [ ] 4.8.2 Analyze the impact of these issues and develop strategies to address them.
 
 - [ ] **4.5 Home Screen Widget:** (Relocated from Future Enhancements)
+    - [ ] Update GitHub repository (on the designated branch) with validated changes from this phase.
