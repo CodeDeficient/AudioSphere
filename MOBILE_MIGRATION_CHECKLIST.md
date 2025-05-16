@@ -1,0 +1,510 @@
+# Mobile Migration Checklist (React Native)
+
+This checklist outlines the tasks and considerations for migrating the web project to a React Native Android app. It serves as a "Needle-in-the-Haystack" index to ensure all aspects of the project are addressed.
+
+
+## Phase 1: Project Setup and Core Functionality
+
+- [ ] **1.1 React Native Environment Setup:**
+    - [ ] 1.1.1 Install Node.js and npm or yarn:
+        - [ ] 1.1.1.1 Check if Node.js is already installed by running `node -v` in the terminal.
+        - [ ] 1.1.1.2 If Node.js is not installed, go to the official Node.js website (nodejs.org) and download the recommended LTS version installer for your operating system.
+        - [ ] 1.1.1.3 Run the Node.js installer and follow the on-screen instructions.
+        - [ ] 1.1.1.4 Verify the installation by opening a new terminal window and running `node -v` and `npm -v`.
+        - [ ] 1.1.1.5 Decide whether to use npm (installed with Node.js) or yarn.
+        - [ ] 1.1.1.6 If choosing yarn, install it globally by running `npm install -g yarn` in the terminal.
+        - [ ] 1.1.1.7 Verify the yarn installation by running `yarn -v` in the terminal.
+    - [ ] 1.1.2 Install the React Native CLI:
+        - [ ] 1.1.2.1 Open a terminal or command prompt.
+        - [ ] 1.1.2.2 Run `npm install -g react-native-cli` (if using npm) or `yarn global add react-native-cli` (if using yarn).
+        - [ ] 1.1.2.3 Verify the installation by running `react-native --version`.
+    - [ ] 1.1.3 Set up the Android development environment:
+        - [ ] 1.1.3.1 Download and install Android Studio from the official website (developer.android.com/studio).
+        - [ ] 1.1.3.2 Open Android Studio and navigate to SDK Manager.
+        - [ ] 1.1.3.3 Under "SDK Platforms", select the latest stable Android version (e.g., Android 14.0).
+        - [ ] 1.1.3.4 Under "SDK Tools", select "Android SDK Build-Tools", "Android Emulator", and "Android SDK Platform-Tools".
+        - [ ] 1.1.3.5 Click "Apply" to download and install the selected SDK components.
+        - [ ] 1.1.3.6 Configure the `ANDROID_HOME` environment variable to point to the Android SDK location.
+        - [ ] 1.1.3.7 Add the Android SDK `platform-tools` and `emulator` directories to your system's PATH.
+        - [ ] 1.1.3.8 Install Java Development Kit (JDK) if not already installed. Android Studio usually bundles a suitable JDK, but verify by running `javac -version` in the terminal. If not installed, download and install a compatible JDK (e.g., OpenJDK).
+    - [ ] 1.1.4 Create and run a sample React Native project to verify the setup:
+        - [ ] 1.1.4.1 Open a terminal or command prompt in a desired directory.
+        - [ ] 1.1.4.2 Run `react-native init MyNewProject`.
+        - [ ] 1.1.4.3 Navigate into the project directory: `cd MyNewProject`.
+        - [ ] 1.1.4.4 Connect an Android device or start an Android emulator in Android Studio.
+        - [ ] 1.1.4.5 Run `react-native run-android` to build and deploy the sample app to the device/emulator.
+
+- [ ] 1.1.5 Set up and configure linters (e.g., ESLint) and code formatters (e.g., Prettier) for the React Native project to maintain code quality and consistency and prevent issues like duplicate code.
+- [ ] **1.2 New React Native Project Creation:**
+    - [ ] 1.2.1 Create a new React Native project for the Android app.
+        - [ ] 1.2.1.1 Navigate to the desired directory in your terminal.
+        - [ ] 1.2.1.2 Run `react-native init AudioSphereMobile --template react-native-template-typescript` (or your preferred template).
+    - [ ] 1.2.2 Configure the project with necessary dependencies.
+        - [ ] 1.2.2.1 Navigate into the new project directory: `cd AudioSphereMobile`.
+        - [ ] 1.2.2.2 Review the `package.json` file for initial dependencies.
+        - [ ] 1.2.2.3 Install additional core dependencies required for the initial setup (e.g., navigation library).
+        - [ ] 1.2.2.4 Configure basic project settings as needed (e.g., app name, package name).
+
+- [ ] **1.3 Core Functionality - Audio Playback:**
+    - [ ] 1.3.1 Research and select a suitable React Native audio playback library (e.g., `react-native-sound`, `react-native-track-player`):
+        - [ ] 1.3.1.1 Identify potential open-source audio playback libraries for React Native.
+        - [ ] 1.3.1.2 Evaluate libraries based on features (playback control, background playback, streaming), maintenance status, and community support.
+        - [ ] 1.3.1.3 Select the most suitable library for the project.
+    - [ ] 1.3.2 Implement basic audio playback (play, pause, stop) using the chosen library.
+        - [ ] 1.3.2.1 Install the selected audio playback library using npm or yarn.
+        - [ ] 1.3.2.2 Import the library into a relevant component or module.
+        - [ ] 1.3.2.3 Initialize the audio player instance.
+        - [ ] 1.3.2.4 Implement functions for playing, pausing, and stopping audio using the library's API.
+
+- [ ] **1.4 Core Functionality - Playlist Management:**
+    - [ ] 1.4.1 Analyze existing playlist data structures and logic in the web project.
+    - [ ] 1.4.2 Design and implement the data structure for playlists in React Native (e.g., using AsyncStorage, a database, or a state management library).
+    - [ ] 1.4.3 Implement functionality to create new playlists and store them.
+    - [ ] 1.4.4 Implement functionality to add and remove songs from playlists.
+    - [ ] 1.4.5 Implement functionality to reorder songs within a playlist (consider drag and drop if feasible with a React Native library).
+    - [ ] 1.4.6 Implement functionality to delete playlists.
+    - [ ] 1.4.7 Integrate playlist data with the audio player to load and play songs from selected playlists.
+
+## Phase 2: UI/UX Adaptation and Mobile-Specific Features
+
+- [ ] **2.0 State Management:**
+    - [ ] 2.0.1 Research and select a state management library for React Native (e.g., Redux, MobX, Zustand), prioritizing open-source options.
+        - [ ] 2.0.1.1 Identify popular open-source state management libraries for React Native.
+        - [ ] 2.0.1.2 Evaluate libraries based on complexity, performance, community support, and suitability for managing application state including audio playback and playlists.
+        - [ ] 2.0.1.3 Select the most suitable state management library.
+    - [ ] 2.0.2 Design the application state structure to accommodate audio playback state, playlists, user settings, etc.
+    - [ ] 2.0.3 Implement the chosen state management solution and integrate it with relevant components to manage shared application state.
+
+- [ ] **2.1 UI Redesign and Implementation:**
+    - [ ] 2.1.1 Analyze existing web components and identify their mobile equivalents.
+        - [ ] `ClientOnly`: This component might not be necessary in React Native in the same way it is in Next.js; review its purpose.
+            - [ ] 2.1.1.1.1 Review the implementation of the `ClientOnly` component in the web project.
+            - [ ] 2.1.1.1.2 Determine if its functionality (handling client-side rendering logic) is needed or has a direct equivalent in React Native.
+            - [ ] 2.1.1.1.3 If not needed, mark it for removal. If needed, research and identify the React Native approach for similar logic.
+        - [ ] `MusicPlayer`: This is a core component; needs to be rebuilt in React Native using a compatible audio library and UI components.
+            - [ ] 2.1.1.2.1 Identify all sub-components and functionalities within the web's `MusicPlayer`.
+            - [ ] 2.1.1.2.2 Plan the structure of the new React Native `MusicPlayer` component.
+            - [ ] 2.1.1.2.3 Outline the integration points with the selected audio playback library and state management.
+        - [ ] `PlaybackControls`: Related to the music player; needs to be rebuilt with React Native UI components and hooked up to the audio library.
+            - [ ] 2.1.1.3.1 Identify the specific controls (play, pause, stop, seek, volume, etc.) in the web's `PlaybackControls`.
+            - [ ] 2.1.1.3.2 Design the layout and appearance of the playback controls in React Native using standard UI components (e.g., `TouchableHighlight`, `Image`, `Slider`).
+        - [ ] `Playlist`: Core component for displaying and managing playlists; needs to be rebuilt with React Native list components and UI elements.
+        - [ ] `SphereVisualizer`: This likely uses Three.js or a similar web-based visualization library; needs a React Native compatible visualization approach.
+        - [ ] **UI Components (from `src/components/ui`):** These likely correspond to the Radix UI components we identified. They will need to be replaced with React Native equivalents or custom implementations.
+            - [ ] `accordion`
+            - [ ] `alert-dialog`
+            - [ ] `alert`
+            - [ ] `avatar`
+            - [ ] `badge`
+            - [ ] `button`
+            - [ ] `calendar`
+            - [ ] `card`
+            - [ ] `chart`
+            - [ ] `checkbox`
+            - [ ] `dialog`
+            - [ ] `dropdown-menu`
+            - [ ] `form`
+            - [ ] `input`
+            - [ ] `label`
+            - [ ] `menubar`
+            - [ ] `popover`
+            - [ ] `progress`
+            - [ ] `radio-group`
+            - [ ] `scroll-area`
+            - [ ] `select`
+            - [ ] `separator`
+            - [ ] `sheet`
+            - [ ] `sidebar`
+            - [ ] `skeleton`
+            - [ ] `slider`
+            - [ ] `switch`
+            - [ ] `table`
+            - [ ] `tabs`
+            - [ ] `textarea`
+            - [ ] `toast`
+            - [ ] `toaster`
+            - [ ] `tooltip`
+
+    - [ ] 2.1.2 Implement mobile-friendly navigation (e.g., bottom tabs, drawer).
+        - [ ] 2.1.2.1 Research popular React Native navigation libraries (e.g., React Navigation). Prioritize open-source options.
+        - [ ] 2.1.2.2 Select a navigation library that supports the required navigation patterns (e.g., stack navigation, tab navigation, drawer navigation).
+        - [ ] 2.1.2.3 Install the selected navigation library and its dependencies.
+        - [ ] 2.1.2.4 Define the main navigation structure of the app (e.g., a main tab navigator with screens for Library, Playlists, etc.).
+        - [ ] 2.1.2.5 Implement the chosen navigation pattern (e.g., set up a `BottomTabNavigator` or `DrawerNavigator`).
+        - [ ] 2.1.2.6 Create placeholder screens for each navigation destination.
+    - [ ] 2.1.3 Redesign and implement key UI components (e.g., music player controls, playlist view).
+        - [ ] 2.1.3.1 For the Music Player controls:
+            - [ ] 2.1.3.1.1 Use React Native components (`View`, `Text`, `Image`, `TouchableOpacity`, `Slider`) to build the visual layout of the controls.
+            - [ ] 2.1.3.1.2 Connect the UI elements (buttons, slider) to the audio playback library's functions (play, pause, stop, seek).
+            - [ ] 2.1.3.1.3 Display the current song title, artist, and album art (if available).
+        - [ ] 2.1.3.2 For the Playlist view:
+            - [ ] 2.1.3.2.1 Use `FlatList` or `SectionList` to display the list of playlists.
+            - [ ] 2.1.3.2.2 Create a component for individual playlist items.
+            - [ ] 2.1.3.2.3 Implement navigation to a screen that shows the songs within a selected playlist.
+        - [ ] 2.1.3.3 For the list of songs within a playlist:
+            - [ ] 2.1.3.3.1 Use `FlatList` or `SectionList` to display the list of songs.
+            - [ ] 2.1.3.3.2 Create a component for individual song items.
+            - [ ] 2.1.3.3.3 Implement the ability to play a song when tapped.
+            - [ ] 2.1.3.3.4 Implement the reordering functionality if using drag and drop.
+        - [ ] 2.1.3.4 Implement other core UI components based on the analysis in 2.1.1, replacing web components with React Native equivalents or custom builds.
+    - [ ] 2.1.4 Address responsive design for different screen sizes and orientations.
+        - [ ] 2.1.4.1 Use React Native's Flexbox for layout to ensure components adapt to different screen sizes.
+        - [ ] 2.1.4.2 Use percentage-based widths or conditional styling based on screen dimensions (`Dimensions` API) where necessary.
+        - [ ] 2.1.4.3 Test the UI on emulators or physical devices with varying screen sizes and resolutions.
+        - [ ] 2.1.4.4 Handle device orientation changes (portrait and landscape) if required for specific screens or layouts.
+    - [ ] 2.1.5 Implement custom fonts (Geist) in React Native.
+        - [ ] 2.1.5.1 Obtain the font files in a supported format (e.g., .ttf, .otf).
+        - [ ] 2.1.5.2 Create an `assets/fonts` directory in your project root.
+        - [ ] 2.1.5.3 Place the font files in the `assets/fonts` directory.
+        - [ ] 2.1.5.4 Create a `react-native.config.js` file in your project root if it doesn't exist.
+        - [ ] 2.1.5.5 Add the assets directory to your `react-native.config.js` file: `module.exports = { assets: ['./assets/fonts'], };`.
+        - [ ] 2.1.5.6 Run `react-native link` to link the assets (for older React Native versions) or verify auto-linking.
+        - [ ] 2.1.5.7 Use the custom font in your React Native styles by referencing the font family name.
+    - [ ] 2.1.6 Address theming (light/dark mode) in React Native.
+        - [ ] 2.1.6.1 Research React Native libraries or built-in features for handling themes (e.g., `@react-native-community/datetimepicker` can integrate with system themes).
+        - [ ] 2.1.6.2 Implement a mechanism to detect the system's preferred color scheme.
+        - [ ] 2.1.6.3 Define color palettes for light and dark modes.
+        - [ ] 2.1.6.4 Apply styles dynamically based on the current theme using hooks or context.
+        - [ ] 2.1.6.5 (Optional) Provide a user setting to manually toggle between light, dark, and system themes.
+
+- [ ] **2.2 Mobile-Specific Features:**
+    - [ ] 2.2.1 Implement offline mode for audio playback.
+        - [ ] 2.2.1.1 Research options for downloading and storing audio files locally on the device. Consider using libraries like `react-native-fs` or background download managers. Prioritize open-source options.
+        - [ ] 2.2.1.2 Implement functionality to allow users to mark songs or playlists for offline availability.
+        - [ ] 2.2.1.3 Implement the download process, including progress tracking and error handling.
+        - [ ] 2.2.1.4 Modify the audio playback logic to check for a local file before attempting to stream from a URL when in offline mode or for offline content.
+        - [ ] 2.2.1.5 Implement UI to indicate which content is available offline.
+        - [ ] 2.2.1.6 Handle storage space limitations.
+    - [ ] 2.2.2 Integrate with native media controls (lock screen controls, notifications).
+        - [ ] 2.2.2.1 Ensure your chosen audio playback library supports integration with `MediaSession` on Android.
+        - [ ] 2.2.2.2 Configure the library to update the media session with current track information (title, artist, album art, duration, position).
+        - [ ] 2.2.2.3 Implement handlers for media control actions (play, pause, stop, next, previous, seek) triggered from the lock screen or notification.
+        - [ ] 2.2.2.4 Test media control integration thoroughly.
+    - [ ] 2.2.3 Explore and implement other relevant mobile features (e.g., background updates).
+        - [ ] 2.2.3.1 Identify other mobile features that would enhance the user experience (e.g., background fetching of new music/playlist updates, push notifications).
+        - [ ] 2.2.3.2 Research React Native libraries or native capabilities for implementing these features.
+        - [ ] 2.2.3.3 Implement selected features based on priority and feasibility.
+
+- [ ] **2.3 Accessibility:**
+    - [ ] 2.3.1 Review existing accessibility notes in `PROJECT_OVERVIEW.md`.
+        - [ ] 2.3.1.1 Locate and read the accessibility section in the `PROJECT_OVERVIEW.md` file.
+        - [ ] 2.3.1.2 Understand the accessibility goals and any specific requirements or considerations mentioned.
+    - [ ] 2.3.2 Implement accessibility features in React Native (e.g., screen reader support, sufficient touch target sizes).
+        - [ ] 2.3.2.1 Use React Native's accessibility props (`accessibilityLabel`, `accessible`, `role`, `state`, `value`).
+        - [ ] 2.3.2.2 Provide meaningful `accessibilityLabel` for interactive elements (buttons, icons) that describe their purpose for screen reader users.
+        - [ ] 2.3.2.3 Ensure touch targets for interactive elements are at least 48x48 density-independent pixels.
+        - [ ] 2.3.2.4 Test the app with Android's TalkBack screen reader.
+        - [ ] 2.3.2.5 Use accessibility testing tools (e.g., Android Accessibility Scanner) to identify potential issues.
+
+## Phase 3: Testing, Optimization, and Deployment
+
+- [ ] **3.1 Bundle Analyzer Setup and Usage:**
+    - [ ] 3.1.1 Integrate a bundle analyzer into the React Native project.
+        - [ ] 3.1.1.1 Research and select a suitable bundle analyzer tool for React Native projects (e.g., `@react-native-community/cli-analyzer`). Prioritize open-source options.
+        - [ ] 3.1.1.2 Install the selected bundle analyzer tool and its dependencies.
+        - [ ] 3.1.1.3 Configure the tool to analyze your React Native project's build output.
+    - [ ] 3.1.2 Analyze the initial bundle size and identify areas for optimization.
+        - [ ] 3.1.2.1 Run the bundle analyzer to generate a report or visualization of your app's bundle size and its contents.
+        - [ ] 3.1.2.2 Identify large libraries, duplicate code, or unused assets that contribute significantly to the bundle size.
+    - [ ] 3.1.3 Regularly run the bundle analyzer throughout the development process to monitor changes.
+        - [ ] 3.1.3.1 Establish a routine for running the bundle analyzer (e.g., before releases, after adding new dependencies).
+        - [ ] 3.1.3.2 Compare bundle size reports over time to identify increases or decreases.
+        - [ ] 3.1.3.3 Investigate any significant increases in bundle size to understand their cause.
+
+- [ ] **3.2 Testing:**
+    - [ ] 3.2.1 Set up a testing framework (e.g., Jest, React Native Testing Library).
+        - [ ] 3.2.1.1 Research and select appropriate testing frameworks for React Native (e.g., Jest for unit testing, React Native Testing Library for component testing). Prioritize open-source options.
+        - [ ] 3.2.1.2 Install the selected testing frameworks and their dependencies.
+        - [ ] 3.2.1.3 Configure the testing environment (e.g., Jest configuration file).
+    - [ ] 3.2.2 Write unit tests for core logic.
+        - [ ] 3.2.2.1 Identify pure functions and isolated logic units in your codebase (e.g., playlist manipulation functions, data processing).
+        - [ ] 3.2.2.2 Write test cases using the chosen unit testing framework (Jest) to verify the correctness of this logic.
+        - [ ] 3.2.2.3 Aim for good code coverage for critical parts of the application.
+    - [ ] 3.2.3 Write integration tests for component interactions.
+        - [ ] 3.2.3.1 Identify components that interact with each other or with state management.
+        - [ ] 3.2.3.2 Use React Native Testing Library to write tests that render components and simulate user interactions.
+        - [ ] 3.2.3.3 Verify that components behave as expected and that data flows correctly between them and the state management.
+    - [ ] 3.2.4 Set up end-to-end tests for critical user flows (e.g., playing a song, creating a playlist).
+        - [ ] 3.2.4.1 Research end-to-end testing frameworks for React Native (e.g., Detox). Prioritize open-source options.
+        - [ ] 3.2.4.2 Install and configure the selected end-to-end testing framework.
+        - [ ] 3.2.4.3 Identify the most critical user flows in the application (e.g., launching the app, playing a song from a playlist, adding a song to a playlist).
+        - [ ] 3.2.4.4 Write end-to-end tests to automate these user flows and verify the overall application functionality on a simulator or device.
+    - [ ] 3.2.5 Conduct manual testing on various Android devices with different screen sizes and Android versions.
+        - [ ] 3.2.5.1 Plan a manual testing matrix covering different devices, Android versions, and screen sizes.
+        - [ ] 3.2.5.2 Perform manual testing on these devices to identify UI inconsistencies, performance issues, or bugs specific to certain environments.
+        - [ ] 3.2.5.3 Test features that are difficult to automate (e.g., background audio on specific devices).
+    - [ ] 3.2.6 Implement a testing strategy for offline mode and background playback.
+        - [ ] 3.2.6.1 Develop specific test cases for offline functionality (downloading, playing offline content).
+        - [ ] 3.2.6.2 Develop specific test cases for background playback (app in background, screen locked, interruptions).
+        - [ ] 3.2.6.3 Perform manual and potentially automated tests for these scenarios.
+
+- [ ] **3.3 Performance Optimization:**
+    - [ ] 3.3.1 Profile the app's performance using React Native profiling tools.
+        - [ ] 3.3.1.1 Use React Native's built-in performance monitoring tools (e.g., the Performance Monitor in the developer menu).
+        - [ ] 3.3.1.2 Use profiling tools available in Android Studio (e.g., CPU Profiler, Memory Profiler, Network Profiler).
+        - [ ] 3.3.1.3 Identify areas with high CPU usage, memory leaks, or slow network requests.
+    - [ ] 3.3.2 Identify and address performance bottlenecks (e.g., rendering issues, slow data processing)..
+        - [ ] 3.3.2.1 Analyze profiling results to pinpoint the root cause of performance issues.
+        - [ ] 3.3.2.2 Optimize inefficient code, reduce unnecessary computations, or refactor components causing excessive re-renders.
+    - [ ] 3.3.3 Optimize code and resource usage based on profiling and bundle analysis results
+        - [ ] 3.3.3.1 Implement code optimizations identified during profiling (e.g., memoization, `useCallback`, `useMemo`).
+        - [ ] 3.3.3.2 Reduce resource usage by optimizing images, fonts, and other assets based on bundle analysis.
+    - [ ] 3.3.4 Implement lazy loading for components and data where appropriate.
+        - [ ] 3.3.4.1 Identify parts of the application that are not immediately needed on screen.
+        - [ ] 3.3.4.2 Use techniques like `React.lazy` and dynamic imports to load components or data only when they are required.
+    - [ ] 3.3.5 Optimize image loading and caching.
+        - [ ] 3.3.5.1 Use a library like `react-native-fast-image` for efficient image loading and caching. Prioritize open-source options.
+        - [ ] 3.3.5.2 Optimize image sizes and formats.
+    - [ ] 3.3.6 Minimize unnecessary re-renders.
+        - [ ] 3.3.6.1 Use the React Native Debugger or React Developer Tools to identify components that are re-rendering unnecessarily.
+        - [ ] 3.3.6.2 Implement `React.memo`, `useCallback`, and `useMemo` to prevent unnecessary re-renders.
+- [ ] **3.7 CI/CD Setup:**
+    - [ ] 3.7.1 Research and select a CI/CD platform compatible with React Native (e.g., Jenkins, GitLab CI, GitHub Actions, App Center).
+        - [ ] 3.7.1.1 Research CI/CD platforms that provide good support for building and testing React Native Android applications. Prioritize open-source options or platforms with generous free tiers.
+        - [ ] 3.7.1.2 Evaluate platforms based on ease of setup, features (automated builds, testing, deployment), pricing, and documentation.
+        - [ ] 3.7.1.3 Select the most suitable CI/CD platform.
+    - [ ] 3.7.2 Configure automated builds for Android.
+        - [ ] 3.7.2.1 Set up a new project or pipeline in the chosen CI/CD platform.
+        - [ ] 3.7.2.2 Configure the pipeline to checkout your React Native project code.
+        - [ ] 3.7.2.3 Configure the build steps for an Android release build (installing dependencies, building the Android project).
+        - [ ] 3.7.2.4 Ensure the build process can access necessary signing keys and configuration.
+    - [ ] 3.7.3 Set up automated testing in the CI/CD pipeline.
+        - [ ] 3.7.3.1 Integrate your unit, integration, and end-to-end tests into the CI/CD pipeline.
+        - [ ] 3.7.3.2 Configure the pipeline to run tests automatically after a successful build.
+        - [ ] 3.7.3.3 Ensure test results are reported in the CI/CD platform.
+    - [ ] 3.7.4 Configure automated deployment to a testing track on Google Play Console.
+        - [ ] 3.7.4.1 Configure your Google Play Developer account for API access.
+        - [ ] 3.7.4.2 Use a tool or plugin provided by your CI/CD platform (or a third-party tool like Fastlane) to automate the deployment of release builds to a closed testing track on Google Play Console. Prioritize open-source options like Fastlane.
+        - [ ] 3.7.4.3 Configure the pipeline to trigger deployment after successful builds and tests on a specific branch (e.g., `release`).
+
+- [ ] **3.8 Monitoring and Analytics:**
+    - [ ] 3.8.1 Research and select a mobile analytics platform (e.g., Firebase Analytics, Google Analytics for Firebase, Amplitude).
+        - [ ] 3.8.1.1 Research mobile analytics platforms compatible with React Native. Consider open-source alternatives if available.
+        - [ ] 3.8.1.2 Evaluate platforms based on features (event tracking, user properties, dashboards, reporting), ease of integration, pricing, and privacy considerations.
+        - [ ] 3.8.1.3 Select the most suitable analytics platform.
+    - [ ] 3.8.2 Integrate the analytics SDK into the app.
+        - [ ] 3.8.2.1 Install the SDK for the chosen analytics platform in your React Native project.
+        - [ ] 3.8.2.2 Configure the SDK with your project's credentials.
+    - [ ] 3.8.3 Define key events and user properties to track.
+        - [ ] 3.8.3.1 Identify critical user actions and application events that you want to track (e.g., song playback, playlist creation, offline download).
+        - [ ] 3.8.3.2 Define relevant user properties (e.g., number of playlists, offline content usage).
+        - [ ] 3.8.3.3 Implement tracking code in your app to log these events and user properties using the analytics SDK.
+    - [ ] 3.8.4 Set up dashboards and reports to monitor user behavior and app performance.
+        - [ ] 3.8.4.1 In the analytics platform's console, set up dashboards and reports to visualize the tracked data.
+        - [ ] 3.8.4.2 Monitor key metrics related to user engagement, feature usage, and performance.
+
+- [ ] **3.9 Error Tracking:**
+    - [ ] 3.9.1 Research and select an error tracking platform compatible with React Native (e.g., Sentry, Crashlytics).
+        - [ ] 3.9.1.1 Research error tracking platforms that provide good support for React Native. Consider open-source alternatives if available.
+        - [ ] 3.9.1.2 Evaluate platforms based on features (crash reporting, error details, alerting, integrations), ease of integration, and pricing.
+        - [ ] 3.9.1.3 Select the most suitable error tracking platform.
+    - [ ] 3.9.2 Integrate the error tracking SDK into the app.
+        - [ ] 3.9.2.1 Install the SDK for the chosen error tracking platform in your React Native project.
+        - [ ] 3.9.2.2 Configure the SDK with your project's credentials.
+    - [ ] 3.9.3 Configure error reporting for crashes and unhandled errors.
+        - [ ] 3.9.3.1 Set up the SDK to automatically capture unhandled JavaScript errors and native crashes.
+        - [ ] 3.9.3.2 (Optional) Implement manual reporting for specific handled errors.
+    - [ ] 3.9.4 Set up alerts for critical errors.
+        - [ ] 3.9.4.1 Configure alerts in the error tracking platform to notify you or your team when critical errors or a high volume of errors occur.
+
+- [ ] **3.10 Security Considerations:**
+    - [ ] 3.10.1 Review secure coding practices for React Native.
+        - [ ] 3.10.1.1 Familiarize yourself with common security vulnerabilities in mobile applications and how they apply to React Native.
+        - [ ] 3.10.1.2 Follow best practices for secure coding in JavaScript and native modules.
+    - [ ] 3.10.2 Implement secure storage for sensitive data (e.g., using `@react-native-community/async-storage` with encryption or a secure key-value store).
+        - [ ] 3.10.2.1 Identify any sensitive data that needs to be stored on the device (e.g., user tokens, private keys).
+        - [ ] 3.10.2.2 Use React Native libraries that provide secure storage options leveraging native capabilities (e.g., Android Keystore). Prioritize open-source options.
+        - [ ] 3.10.2.3 Avoid storing sensitive data in plain text in AsyncStorage or other insecure locations.
+    - [ ] 3.10.3 Review and secure API calls.
+        - [ ] 3.10.3.1 Ensure API calls are made over HTTPS.
+        - [ ] 3.10.3.2 Implement proper authentication and authorization for API endpoints.
+        - [ ] 3.10.3.3 Validate and sanitize data received from APIs.
+    - [ ] 3.10.4 Consider code obfuscation or other techniques to protect intellectual property.
+        - [ ] 3.10.4.1 Research code obfuscation tools compatible with React Native.
+        - [ ] 3.10.4.2 Evaluate the level of protection needed and implement obfuscation if necessary.
+    - [ ] 3.10.5 Address any security recommendations from dependency audits.
+        - [ ] 3.10.5.1 Regularly audit your project's dependencies for known security vulnerabilities.
+        - [ ] 3.10.5.2 Update dependencies to address vulnerabilities or find alternative libraries if necessary.
+- [ ] **3.5 Prepare for Deployment:**
+    - [ ] 3.5.1 Generate release builds of the Android app.
+        - [ ] 3.5.1.1 Follow the official React Native documentation for generating signed release APK or AAB (Android App Bundle) builds.
+        - [ ] 3.5.1.2 Ensure you have a signing key and configure the project to use it for release builds.
+    - [ ] 3.5.2 Configure signing and other deployment settings.
+        - [ ] 3.5.2.1 Configure the `gradle.properties` and `build.gradle` files in your Android project for signing and build types.
+        - [ ] 3.5.2.2 Configure ProGuard or R8 rules for code minification and obfuscation (if desired).
+    - [ ] 3.5.3 Prepare app icons, splash screens, and other assets for Android.
+        - [ ] 3.5.3.1 Create or adapt app icons for different densities according to Android guidelines.
+        - [ ] 3.5.3.2 Create a splash screen for your app.
+        - [ ] 3.5.3.3 Ensure all necessary assets (images, fonts, audio files) are included in the release build.
+- [ ] **3.4 Dependency Review and Management:**
+    - [ ] 3.4.1 Review all existing web dependencies (`package.json`).
+        - [ ] `@genkit-ai/googleai`: Genkit AI library - Needs investigation for React Native compatibility or alternative AI integration.
+        - [ ] `@genkit-ai/next`: Genkit AI integration for Next.js - Not compatible with React Native; needs alternative API integration.
+        - [ ] `@hookform/resolvers`: Hook Form resolvers - Likely compatible, but verify React Native support.
+        - [ ] `@radix-ui/*`: Radix UI components - **Not directly compatible with React Native UI.** Need to find React Native equivalents or build custom components.
+        - [ ] `@tanstack-query-firebase/react`: TanStack Query Firebase adapter - Likely compatible, but verify React Native support.
+        - [ ] `@tanstack/react-query`: TanStack Query - Compatible with React Native.
+        - [ ] `butterchurn`: Audio visualizer - **Needs investigation for React Native compatibility or alternative visualization library.**
+        - [ ] `butterchurn-presets`: Butterchurn presets - Depends on `butterchurn`.
+        - [ ] `class-variance-authority`: Utility for conditional CSS classes - Not directly applicable to React Native styling.
+        - [ ] `clsx`: Utility for constructing `className` strings - Not directly applicable to React Native styling.
+        - [ ] `date-fns`: Date utility library - Compatible with React Native.
+        - [ ] `firebase`: Firebase SDK - Compatible with React Native.
+        - [ ] `geist`: Font - Needs to be handled as a custom font in React Native.
+        - [ ] `genkit`: Genkit core library - Needs investigation for React Native compatibility or alternative AI integration.
+        - [ ] `jsmediatags`: Library for reading media tags - Likely compatible, but verify React Native support.
+        - [ ] `lucide-react`: Icon library - Needs a React Native-compatible icon library.
+        - [ ] `next`: Next.js framework - **Not compatible with React Native.**
+        - [ ] `next-themes`: Theme provider for Next.js - Not directly compatible; need a React Native theme solution.
+        - [ ] `patch-package`: Utility for patching node modules - May or may not be needed depending on other dependencies.
+        - [ ] `react`: React core - Compatible with React Native.
+        - [ ] `react-beautiful-dnd`: Drag and drop library - **Not directly compatible with React Native.** Need a React Native drag and drop library.
+        - [ ] `react-day-picker`: Date picker - **Needs investigation for React Native compatibility or alternative date picker.**
+        - [ ] `react-dom`: React DOM (for web) - **Not compatible with React Native.**
+        - [ ] `react-dropzone`: File upload - **Not directly compatible with React Native.** Need a React Native file picker/upload solution.
+        - [ ] `react-hook-form`: Form library - Compatible with React Native.
+        - [ ] `recharts`: Charting library - **Needs investigation for React Native compatibility or alternative charting library.**
+        - [ ] `tailwind-merge`: Utility for merging Tailwind CSS classes - Not applicable to React Native styling.
+        - [ ] `tailwindcss-animate`: Tailwind CSS animation plugin - Not applicable to React Native styling.
+        - [ ] `three`: Three.js (for 3D graphics) - **Needs investigation for React Native compatibility or alternative 3D library.** React Native has libraries for integrating with native graphics APIs (like OpenGL or Metal), but direct Three.js usage might be complex.
+        - [ ] `tone`: Audio framework - **Needs investigation for React Native compatibility or alternative audio processing library.**
+        - [ ] `zod`: Schema validation library - Compatible with React Native.
+
+    - [ ] 3.4.2 Identify React Native-compatible alternatives for incompatible dependencies.
+    - [ ] 3.4.3 Update the "Needle-in-the-Haystack" index with dependency migration status.
+    - [ ] 3.4.4 Research React Native audio visualization libraries and evaluate their suitability to replace Butterchurn.
+    - [ ] 3.4.5 Investigate options for implementing 3D graphics in React Native to replace Three.js, including exploring native modules or alternative libraries.
+    - [ ] 3.4.6 Select a React Native UI library to replace Radix UI components and plan for implementing the UI using the chosen library.
+    - [ ] 3.4.7 Research and select a React Native compatible icon library to replace Lucide React.
+    - [ ] 3.4.8 Research and select a React Native drag and drop library to replace react-beautiful-dnd.
+    - [ ] 3.4.9 Research and select a React Native date picker library or plan to use native date picker components to replace react-day-picker.
+    - [ ] 3.4.10 Research and select a React Native file picker/document picker library and plan for implementing file upload logic to replace react-dropzone.
+    - [ ] 3.4.11 Research and select a React Native charting library to replace Recharts.
+    - [ ] 3.4.12 Research and select a React Native audio processing library to replace Tone.js.
+    - [ ] 3.4.13 Plan for implementing custom fonts (Geist) in React Native.
+    - [ ] 3.4.14 Plan for implementing a React Native theming solution.
+    - [ ] 3.4.15 Confirm removal of web-specific dependencies: class-variance-authority, clsx, react-dom, next, next-themes, tailwind-merge, tailwindcss-animate.
+
+- [ ] **3.5 Prepare for Deployment:**
+    - [ ] 3.5.1 Generate release builds of the Android app.
+    - [ ] 3.5.2 Configure signing and other deployment settings.
+
+- [ ] **3.6 Deploy the App:**
+    - [ ] 3.6.1 Submit the app to the Google Play Store.
+        - [ ] 3.6.1.1 Create a Google Play Developer account (if you don't have one).
+        - [ ] 3.6.1.2 In the Google Play Console, create a new application.
+        - [ ] 3.6.1.3 Prepare your app's store listing (title, description, screenshots, feature graphic, etc.).
+        - [ ] 3.6.1.4 Upload your signed release AAB or APK to a release track (e.g., Internal testing, Closed testing, Open testing, Production).
+        - [ ] 3.6.1.5 Configure the release details, including release notes and target countries/regions.
+        - [ ] 3.6.1.6 Complete content rating questionnaire and provide information about your app's target audience and content.
+        - [ ] 3.6.1.7 Address any pre-launch report issues if using testing tracks.
+        - [ ] 3.6.1.8 Submit your app for review.
+        - [ ] 3.6.1.9 Monitor the app's status in the Google Play Console and address any feedback from the review team.
+
+- [ ] **3.11 Payment System Integration (Future):**
+    - [ ] 3.11.1 Research Google Play's in-app billing system.
+        - [ ] 3.11.1.1 Read the official Google Play Billing documentation to understand the concepts and implementation details of in-app purchases and subscriptions.
+    - [ ] 3.11.2 Investigate open-source payment solutions compatible with React Native or backend integration (e.g., evaluate Polar for mobile compatibility, research alternatives), prioritizing open-source options.
+        - [ ] 3.11.2.1 Research React Native libraries for implementing in-app purchases that abstract away some of the native billing complexities (e.g., `react-native-iap`). Prioritize open-source options.
+        - [ ] 3.11.2.2 Evaluate backend integration options for handling subscriptions and validating purchases securely.
+        - [ ] 3.11.2.3 Investigate if Polar or similar web-based payment solutions have mobile SDKs or compatible APIs.
+        - [ ] 3.11.2.4 Select a strategy for implementing payment processing in the mobile app.
+    - [ ] 3.11.3 Plan for integrating a payment system for future paywall features.
+        - [ ] 3.11.3.1 Outline the user flows for purchasing content or subscriptions.
+        - [ ] 3.11.3.2 Design the UI for displaying products, handling the purchase process, and managing subscriptions.
+        - [ ] 3.11.3.3 Plan the integration points between the mobile app, the payment gateway (Google Play Billing), and your backend (if applicable).
+
+- [ ] **3.12 User Authentication Integration:**
+    - [ ] 3.12.1 Integrate Firebase Authentication with Google Sign-In for user authentication.
+        - [ ] 3.12.1.1 Set up Firebase project for your Android app.
+        - [ ] 3.12.1.2 Add Firebase to your React Native project.
+        - [ ] 3.12.1.3 Enable Firebase Authentication in the Firebase console.
+        - [ ] 3.12.1.4 Configure Google Sign-In as an authentication provider in Firebase.
+        - [ ] 3.12.1.5 Install the necessary React Native Firebase modules for Authentication and Google Sign-In.
+        - [ ] 3.12.1.6 Implement the Google Sign-In flow in your React Native app using the Firebase SDK.
+        - [ ] 3.12.1.7 Handle user authentication state changes and persist user sessions.
+
+## Phase 4: Future Enhancements
+- [ ] **4.1 Native Modules Implementation:**
+    - [ ] 4.1.1 Implement native modules for advanced Android features where React Native bridges are not sufficient.
+        - [ ] 4.1.1.1 Identify specific functionalities that require native code implementation (e.g., deep integration with system audio, complex background processing not fully supported by React Native libraries).
+        - [ ] 4.1.1.2 Plan the architecture and communication between the JavaScript side of your React Native app and the native Android modules.
+        - [ ] 4.1.1.3 Write native code (Java or Kotlin) for the required functionality.
+        - [ ] 4.1.1.4 Create a React Native bridge to expose the native module's methods and events to your JavaScript code.
+        - [ ] 4.1.1.5 Test the native module integration thoroughly.
+
+- [ ] **4.2 Home Screen Widget (Spike/Future):**
+    - [ ] 4.2.1 Research React Native capabilities and limitations for creating home screen widgets on Android.
+        - [ ] 4.2.1.1 Investigate existing React Native libraries or methods for creating Android App Widgets. Understand that creating truly native widgets often requires significant native code.
+        - [ ] 4.2.1.2 Research the lifecycle and update mechanisms of Android widgets.
+    - [ ] 4.2.2 Design the AudioSphere visualizer widget's appearance and functionality.
+        - [ ] 4.2.2.1 Define the visual layout of the widget, considering size constraints and design consistency.
+        - [ ] 4.2.2.2 Determine what information (e.g., current song) and controls (e.g., play/pause) the widget should display.
+        - [ ] 4.2.2.3 Plan how the visualizer will be rendered within the widget's limited capabilities.
+    - [ ] 4.2.3 Implement the home screen widget functionality (likely involving native code).
+        - [ ] 4.2.3.1 Write the native Android App Widget provider code.
+        - [ ] 4.2.3.2 Implement the UI of the widget using Android layout files.
+        - [ ] 4.2.3.3 Implement the logic for receiving audio data updates from the running React Native app (potentially via background services or broadcasts).
+        - [ ] 4.2.3.4 Implement the rendering of the visualizer within the widget (this might be a significant challenge depending on the complexity of the original visualizer).
+        - [ ] 4.2.3.5 Handle user interactions with the widget (e.g., tapping play/pause).
+
+- [ ] **4.3 Floating Widget / System Overlay (Spike/Future):**
+    - [ ] 4.3.1 Research options for creating a floating overlay window or system alert window in React Native on Android.
+        - [ ] 4.3.1.1 Investigate React Native libraries or native Android APIs for drawing over other apps (requires `SYSTEM_ALERT_WINDOW` permission).
+        - [ ] 4.3.1.2 Understand the security and user experience implications of using this permission.
+    - [ ] 4.3.2 Design the floating AudioSphere visualizer widget's appearance and behavior.
+        - [ ] 4.3.2.1 Design a compact and non-intrusive floating UI.
+        - [ ] 4.3.2.2 Plan how the widget will be positioned, moved, and potentially resized by the user.
+    - [ ] 4.3.3 Implement the floating widget functionality (likely involving native code and permission handling).
+        - [ ] 4.3.3.1 Implement the native Android service and view for the floating window.
+        - [ ] 4.3.3.2 Implement the logic for receiving audio data and rendering the visualizer in the overlay.
+        - [ ] 4.3.3.3 Implement touch handling for dragging, resizing, and interacting with the widget.
+        - [ ] 4.3.3.4 Implement the necessary permission request flow to the user.
+        - [ ] 4.3.3.5 Address potential limitations and variations in floating window behavior across different Android versions and manufacturers.
+
+- [ ] **4.4 System Audio Access (Spike/Future):**
+    - [ ] 4.4.1 Research native Android capabilities for accessing and processing system-wide audio output.
+        - [ ] 4.4.1.1 Investigate Android APIs like `AudioRecord` or `MediaRecorder` (note that accessing system audio requires specific permissions and has limitations).
+        - [ ] 4.4.1.2 Research potential security and privacy implications of accessing system audio.
+    - [ ] 4.4.2 Determine the feasibility of integrating system audio processing with the React Native visualizer.
+        - [ ] 4.4.2.1 Assess if the performance and real-time requirements of the visualizer can be met by capturing and processing system audio on the device.
+- [ ] **4.3 Regular Review and Refinement of Checklist:** (Relocated from Unforeseen Issues)
+    - [ ] 4.3.1 Schedule regular reviews of this checklist.
+    - [ ] 4.3.2 Update the checklist with new insights, tasks, and completed items.
+
+- [ ] **4.4 Documentation of Decisions and Workarounds:** (Relocated from Unforeseen Issues)
+    - [ ] 4.4.1 Maintain a separate document or section within this checklist to record key decisions, workarounds, and lessons learned.
+
+- [ ] **4.7 Guiding Principles:**
+- [ ] **4.5 Address Web-Specific Code:**
+    - [ ] 4.5.1 Identify and remove or replace web-specific code constructs.
+        - [ ] 4.5.1.1 Scan the codebase for web-specific APIs or patterns that are not supported in React Native (e.g., DOM manipulation, `window` object usage, web-specific events).
+        - [ ] 4.5.1.2 Replace web-specific code with React Native equivalents or refactor the logic to be platform-agnostic.
+    - [ ] 4.5.2 Refactor components that rely heavily on web browser APIs.
+        - [ ] 4.5.2.1 Identify components that use web APIs extensively (e.g., `localStorage`, `sessionStorage`, `document`).
+        - [ ] 4.5.2.2 Rewrite or adapt these components to use React Native APIs or libraries (e.g., `@react-native-community/async-storage` for local storage).
+
+- [ ] **4.6 Spike Solutions:**
+    - [ ] 4.6.1 Identify areas of the migration with high uncertainty or technical risk.
+        - [ ] 4.6.1.1 Based on the dependency analysis and feature requirements, pinpoint areas where the React Native implementation is unclear or potentially complex (e.g., implementing the SphereVisualizer, accessing system audio).
+    - [ ] 4.6.2 Plan and execute focused spike solutions for these areas.
+        - [ ] 4.6.2.1 Define specific, time-boxed research and development tasks to explore solutions for the identified uncertain areas.
+        - [ ] 4.6.2.2 Implement small proof-of-concept code snippets or prototypes to test different approaches.
+    - [ ] 4.6.3 Document findings and update the checklist and project plan accordingly.
+        - [ ] 4.6.3.1 Record the results of each spike, including successful approaches, challenges encountered, and lessons learned.
+        - [ ] 4.6.3.2 Update the main checklist with concrete tasks based on the spike findings (e.g., "Implement SphereVisualizer using Library X").
+        - [ ] 4.6.3.3 Adjust the project timeline and resource allocation based on the complexity revealed by the spikes.
+
+- [ ] **4.7 Issue Tracking System:**
+    - [ ] 4.7.1 Set up or utilize an existing issue tracking system for the mobile migration project.
+        - [ ] 4.7.1.1 Choose an issue tracking system (e.g., Jira, GitHub Issues, Trello).
+        - [ ] 4.7.1.2 Create a new project or board for the AudioSphere mobile app migration.
+    - [ ] 4.7.2 Log all encountered issues, bugs, or tasks, no matter how small.
+        - [ ] 4.7.2.1 Encourage all team members (if applicable) to log issues as they are discovered.
+        - [ ] 4.7.2.2 Provide clear descriptions, steps to reproduce, and relevant context for each issue.
+
+- [ ] **4.8 Unforeseen Issues and Consequences:**
+    - [ ] 4.8.1 Identify and document any unforeseen issues or consequences encountered during the migration process.
+    - [ ] 4.8.2 Analyze the impact of these issues and develop strategies to address them.
+
+- [ ] **4.5 Home Screen Widget:** (Relocated from Future Enhancements)
