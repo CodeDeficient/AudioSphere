@@ -1,44 +1,64 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Ignore node_modules
+node_modules/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Ignore build directories
+android/build/
+android/app/build/
+ios/build/
 
-# testing
-/coverage
+# Ignore Metro bundler cache and logs
+.expo/
+.expo-shared/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+android/.gradle
+!android/.gradle/wrapper/gradle-wrapper.jar
+!android/gradlew
+!android/gradlew.bat
+!android/gradle/wrapper/gradle-wrapper.properties
+ios/Podfile.lock
 
-# next.js
-/.next/
-/out/
+# Ignore environment files
+.env
+.env.local
 
-# production
-/build
+# Ignore IDE specific files
+.vscode/ # If you don't want to share VS Code settings
 
-# misc
+# Ignore Native specific files
+android/.idea/
+ios/.idea/
+*.iml
+
+# Ignore bundled assets
+android/app/src/main/assets/bundles/index.android.bundle
+ios/main.jsbundle
+
+# Ignore CocoaPods files
+ios/Pods/
+
+# Ignore fastlane files
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+
+# Ignore detenv files
+.detenv
+
+# Ignore keystore file for signing
+*.keystore
+android/app/*.keystore
+
+# Ignore Android studio files
+captures/
+
+# Ignore Xcode files
+*.pbxuser
+*.xcscheme
+xcuserdata/
+
+# Other ignores
+*.log
+*.swp
 .DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-.genkit/*
-
-# firebase
-firebase-debug.log
-firestore-debug.log
