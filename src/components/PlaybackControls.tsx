@@ -66,7 +66,7 @@ export default function PlaybackControls({
           step={0.01}
           onValueChange={handleSliderChange}
           className="w-full cursor-pointer"
-          aria-label="Seek slider"
+          aria-label="Seek track progress"
         />
         <span className="text-xs text-foreground w-10 text-left">
           {formatTime(duration)}
@@ -92,7 +92,7 @@ export default function PlaybackControls({
             step={0.01}
             onValueChange={handleVolumeSliderChange}
             className="w-full cursor-pointer"
-            aria-label="Volume slider"
+            aria-label="Volume control"
           />
         </div>
       </div>

@@ -69,8 +69,3 @@ body::before {
 .glassmorphism {
   background: rgba(15, 15, 20, 0.7); /* Maintain normal background on hover */
 }
-
-*:not(button):not([role="slider"]):not(.slider):not(.btn) {
-  transition: none !important;
-  animation: none !important;
-}

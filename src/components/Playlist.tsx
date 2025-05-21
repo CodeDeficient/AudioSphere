@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { Track } from './MusicPlayer'; // Import Track type
+import type { Track } from '@/hooks/useTonePlayer'; // Import Track type
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Music, PlayCircle, PauseCircle, X } from 'lucide-react'; // Import icons
@@ -15,12 +15,6 @@ interface PlaylistProps {
   isPlaying: boolean;
   onReorder?: (newTracks: Track[]) => void;
   onRemove?: (trackId: string) => void;
-}
-
-interface TrackMetadata {
-  artist?: string;
-  album?: string;
-  duration?: string;
 }
 
 export default function Playlist({

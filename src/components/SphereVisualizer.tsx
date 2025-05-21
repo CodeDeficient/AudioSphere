@@ -44,7 +44,8 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
   const [presetKeys, setPresetKeys] = useState<string[]>([]);
   const [currentPresetKey, setCurrentPresetKey] = useState<string | null>(null);
   const isPlayingRef = useRef(isPlaying); // Ref to hold the latest isPlaying
-  const tier: Tier = 'high';
+  const storedTier = getStoredTier();
+  const tier: Tier = storedTier !== null ? storedTier : 'medium'; // Default to 'medium' if nothing is stored
   const [rotationEnabled, setRotationEnabled] = useState(true);
 
   // Effect to update the ref when the prop changes
@@ -231,11 +232,6 @@ const SphereVisualizer: React.FC<SphereVisualizerProps> = ({ analyserNode, isPla
        canvasRef.current = null;
     };
   }, [analyserNode, isPlaying, rotationEnabled, tier]);
-
-   useEffect(() => {
-      // Log playing state change
-     // console.log("isPlaying state changed:", isPlaying);
-   }, [isPlaying]);
 
   return (
     <div ref={mountRef} className="w-full h-full relative overflow-hidden select-none">
