@@ -197,6 +197,7 @@ const Sidebar = React.forwardRef<
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
+            side="left"
             data-sidebar="sidebar"
             data-mobile="true"
             className="bg-white/10 backdrop-blur-md border-r border-white/20 shadow-lg   overflow-hidden relative group"
