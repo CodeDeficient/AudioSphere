@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -200,8 +200,9 @@ const Sidebar = React.forwardRef<
             side="left"
             data-sidebar="sidebar"
             data-mobile="true"
-            className="bg-white/10 backdrop-blur-md border-r border-white/20 shadow-lg relative group bg-red-500"
+            className="bg-white/10 backdrop-blur-md border-r border-white/20 shadow-lg relative group"
           >
+            <SheetTitle className="sr-only">Playlist Navigation</SheetTitle>
             {/* SVG Noise Overlay */}
             <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none group-opacity-20  " xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noiseFilter)"/></svg>
             {children}
