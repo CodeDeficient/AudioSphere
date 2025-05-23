@@ -282,7 +282,7 @@ export default function MusicPlayer() {
             {/* Mobile Sidebar (New) */}
             {isMobile && (
               <Sidebar> {/* Sidebar component handles Sheet internally based on context */}
-                <SidebarContent className="glassmorphism w-80"> {/* Apply glassmorphism and consistent width */}
+                <SidebarContent className="glassmorphism w-80 z-[60] h-full"> {/* Apply glassmorphism and consistent width */}
                   <div className="flex flex-col h-full p-4">
                     <Input
                       type="text"

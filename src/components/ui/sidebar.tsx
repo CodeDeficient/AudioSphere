@@ -200,7 +200,7 @@ const Sidebar = React.forwardRef<
             side="left"
             data-sidebar="sidebar"
             data-mobile="true"
-            className="bg-white/10 backdrop-blur-md border-r border-white/20 shadow-lg   overflow-hidden relative group"
+            className="bg-white/10 backdrop-blur-md border-r border-white/20 shadow-lg relative group"
           >
             {/* SVG Noise Overlay */}
             <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none group-opacity-20  " xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noiseFilter)"/></svg>
